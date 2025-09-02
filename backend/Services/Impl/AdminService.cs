@@ -3,6 +3,7 @@ using BlogApi.Models;
 using BlogApi.Repositories;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BlogApi.Services.Impl
@@ -11,6 +12,7 @@ namespace BlogApi.Services.Impl
     {
         private readonly IUserRepository _userRepo;
         private readonly UserManager<ApplicationUser> _userManager;
+
         public AdminService(IUserRepository userRepo, UserManager<ApplicationUser> userManager)
         {
             _userRepo = userRepo;
@@ -41,17 +43,25 @@ namespace BlogApi.Services.Impl
             // Decide final role
             var finalRole = role ?? user.RequestedRole ?? "User";
 
-            // Remove all old roles first
+            // Remove old roles first
             var existingRoles = await _userManager.GetRolesAsync(user);
-            if (existingRoles.Count > 0)
+            if (existingRoles.Any())
                 await _userManager.RemoveFromRolesAsync(user, existingRoles);
 
-            // Assign only the final role
+            // Assign final role
             await _userManager.AddToRoleAsync(user, finalRole);
 
             return true;
         }
 
+        public async Task<bool> RejectUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
 
+            // Completely delete user from DB
+            var result = await _userManager.DeleteAsync(user);
+            return result.Succeeded;
+        }
     }
 }

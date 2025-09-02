@@ -1,11 +1,8 @@
 ﻿using System;
-
 using BlogApi.Services;
 using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 namespace BlogApi.Controllers
 {
     [ApiController]
@@ -26,5 +23,13 @@ namespace BlogApi.Controllers
             if (!ok) return NotFound();
             return Ok(new { message = "User approved" });
         }
+        [HttpPost("reject/{userId}")]
+        public async Task<IActionResult> Reject(string userId)
+        {
+            var ok = await _svc.RejectUserAsync(userId);
+            if (!ok) return NotFound(new { message = "User not found or already handled" });
+            return Ok(new { message = "User rejected" });
+        }
+
     }
 }
