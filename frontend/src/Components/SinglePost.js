@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
+import { FaEdit, FaTrash, FaUser, FaSun, FaMoon, FaCog } from "react-icons/fa";
 import "./SinglePost.css";
 
 export default function SinglePost() {
-  const { id } = useParams(); // current post ID
+  const { id } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -20,15 +21,26 @@ export default function SinglePost() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const dropdownRef = useRef(null);
+
   const user = JSON.parse(localStorage.getItem("user"));
   const loggedInUsername = user?.username;
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    document.body.classList.toggle("dark-mode");
   };
 
-  // ------------------- EFFECTS -------------------
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   useEffect(() => {
     fetchPost();
     fetchComments();
@@ -36,7 +48,6 @@ export default function SinglePost() {
     return () => window.speechSynthesis.cancel();
   }, [id]);
 
-  // ------------------- FETCH POST -------------------
   const fetchPost = async () => {
     setLoading(true);
     try {
@@ -50,7 +61,6 @@ export default function SinglePost() {
     }
   };
 
-  // ------------------- INCREMENT VIEWS -------------------
   const incrementViews = async () => {
     try {
       await api.post(`/Posts/${id}/view`);
@@ -63,56 +73,51 @@ export default function SinglePost() {
     }
   };
 
-  // ------------------- FETCH COMMENTS -------------------
   const fetchComments = async () => {
     try {
-      const res = await api.get(`/posts/${id}/Comments`); // use actual post ID
+      const res = await api.get(`/posts/${id}/Comments`);
       setComments(res.data || []);
     } catch (err) {
       console.error("Error fetching comments:", err);
     }
   };
 
-  // ------------------- LIKE POST -------------------
   const handleLike = async () => {
-  setLikeLoading(true);
-  try {
-    const res = await api.post(`/Posts/${id}/like`);
-    setPost((prev) => ({ ...prev, likesCount: res.data.likesCount }));
-  } catch (err) {
-    if (err.response?.status === 401) {
-      alert("Login required to like this post.");
-      navigate("/login");
-    } else {
-      console.error(err);
-      alert("Failed to like post.");
+    setLikeLoading(true);
+    try {
+      const res = await api.post(`/Posts/${id}/like`);
+      setPost((prev) => ({ ...prev, likesCount: res.data.likesCount }));
+    } catch (err) {
+      if (err.response?.status === 401) {
+        alert("Login required to like this post.");
+        navigate("/login");
+      } else {
+        console.error(err);
+        alert("Failed to like post.");
+      }
+    } finally {
+      setLikeLoading(false);
     }
-  } finally {
-    setLikeLoading(false);
-  }
-};
+  };
 
-  // ------------------- ADD COMMENT -------------------
   const handleComment = async () => {
-  if (!commentText.trim()) return;
-  try {
-    const res = await api.post(`/posts/${id}/Comments`, { content: commentText });
-    setComments((prev) => [...prev, res.data]);
-    setPost((prev) => ({ ...prev, commentsCount: (prev.commentsCount || 0) + 1 }));
-    setCommentText("");
-  } catch (err) {
-    if (err.response?.status === 401) {
-      alert("Login required to comment.");
-      navigate("/login");
-    } else {
-      console.error(err);
-      alert("Failed to post comment.");
+    if (!commentText.trim()) return;
+    try {
+      const res = await api.post(`/posts/${id}/Comments`, { content: commentText });
+      setComments((prev) => [...prev, res.data]);
+      setPost((prev) => ({ ...prev, commentsCount: (prev.commentsCount || 0) + 1 }));
+      setCommentText("");
+    } catch (err) {
+      if (err.response?.status === 401) {
+        alert("Login required to comment.");
+        navigate("/login");
+      } else {
+        console.error(err);
+        alert("Failed to post comment.");
+      }
     }
-  }
-};
+  };
 
-
-  // ------------------- POST ACTIONS -------------------
   const handleEdit = () => navigate(`/edit-post/${id}`);
   const handleDelete = async () => {
     if (!window.confirm("Delete this post?")) return;
@@ -125,7 +130,6 @@ export default function SinglePost() {
     }
   };
 
-  // ------------------- SUMMARY -------------------
   const handleGenerateSummary = async () => {
     if (!post?.content) return;
     setSummaryLoading(true);
@@ -140,7 +144,6 @@ export default function SinglePost() {
     }
   };
 
-  // ------------------- SPEECH -------------------
   const handleSpeak = () => {
     if (!post?.content) return;
     if (!speaking) {
@@ -155,7 +158,6 @@ export default function SinglePost() {
     }
   };
 
-  // ------------------- CHAT -------------------
   const handleChatSubmit = async (e) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
@@ -178,39 +180,47 @@ export default function SinglePost() {
   if (!post) return <div className="loading">Post not found</div>;
 
   const loggedInUserId = user?.id;
-const isAuthor = post.authorId === loggedInUserId;
+  const isAuthor = post.authorId === loggedInUserId;
 
-
-  // ------------------- RENDER -------------------
   return (
     <div className={`single-post-container ${isDarkMode ? "dark-mode" : ""}`}>
-      <header>
+      {/* HEADER */}
+      <header ref={dropdownRef}>
         <div className="nav-brand" onClick={() => navigate("/home")}>ApnaBlog</div>
-        <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
-          <i className="fa-solid fa-bars"></i>
+
+        <div className="settings-icon" onClick={() => setMenuOpen(!menuOpen)}>
+          <FaCog />
         </div>
-        <div className={`nav-right ${menuOpen ? "open" : ""}`}>
-          <div className="user-profile" onClick={() => navigate("/profile")}>
-            <i className="fa-solid fa-user"></i> {loggedInUsername || "Guest"}
+
+        {menuOpen && (
+          <div className="settings-dropdown">
+            <div className="dropdown-item" onClick={() => navigate("/profile")}>
+              <FaUser /> Profile
+            </div>
+            <div className="dropdown-item" onClick={toggleDarkMode}>
+              {isDarkMode ? <FaSun /> : <FaMoon />} {isDarkMode ? "Light Mode" : "Dark Mode"}
+            </div>
           </div>
-          <div className="dark-mode-toggle" onClick={toggleDarkMode}>
-            {isDarkMode ? <i className="fa-solid fa-sun"></i> : <i className="fa-solid fa-moon"></i>}
-          </div>
-        </div>
+        )}
       </header>
 
+      {/* MAIN CONTENT */}
       <div className="single-post-main">
         <div className="post-left">
           <h1 className="post-title">{post.title}</h1>
           <p className="post-meta">
             By <strong>{post.authorUsername}</strong> • {new Date(post.createdAt).toLocaleDateString()}
           </p>
-          <p className="post-views"><i className="fa-solid fa-eye"></i> {post.viewsCount || 0} views</p>
+          <p className="post-views">{post.viewsCount || 0} views</p>
 
           {isAuthor && (
             <div className="author-buttons">
-              <button className="btn-primary" onClick={handleEdit}>Edit</button>
-              <button className="btn-danger" onClick={handleDelete}>Delete</button>
+              <button className="btn-primary" onClick={handleEdit}>
+                <FaEdit /> Edit
+              </button>
+              <button className="btn-danger" onClick={handleDelete}>
+                <FaTrash /> Delete
+              </button>
             </div>
           )}
 
@@ -221,8 +231,8 @@ const isAuthor = post.authorId === loggedInUserId;
           <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content }} />
 
           <div className="post-stats">
-            <span><i className="fa-solid fa-thumbs-up"></i> {post.likesCount || 0}</span>
-            <span><i className="fa-solid fa-comment"></i> {post.commentsCount || 0}</span>
+            <span>{post.likesCount || 0} Likes</span>
+            <span>{post.commentsCount || 0} Comments</span>
           </div>
 
           <button className="btn-primary" onClick={handleLike} disabled={likeLoading}>
@@ -230,24 +240,23 @@ const isAuthor = post.authorId === loggedInUserId;
           </button>
 
           <div className="comments-section">
-  <h3>Comments</h3>
-  {comments.map((c) => (
-    <div key={c.id} className="comment">
-      <strong>{c.authorName}</strong>: {c.content}
-      <div className="comment-meta">
-        <small>{new Date(c.createdAt).toLocaleString()}</small>
-      </div>
-    </div>
-  ))}
-  <textarea
-    value={commentText}
-    onChange={(e) => setCommentText(e.target.value)}
-    placeholder="Write a comment..."
-    className="comment-input"
-  />
-  <button className="btn-primary" onClick={handleComment}>Post Comment</button>
-</div>
-
+            <h3>Comments</h3>
+            {comments.map((c) => (
+              <div key={c.id} className="comment">
+                <strong>{c.authorName}</strong>: {c.content}
+                <div className="comment-meta">
+                  <small>{new Date(c.createdAt).toLocaleString()}</small>
+                </div>
+              </div>
+            ))}
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Write a comment..."
+              className="comment-input"
+            />
+            <button className="btn-primary" onClick={handleComment}>Post Comment</button>
+          </div>
         </div>
 
         <div className="post-right">
