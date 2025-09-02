@@ -1,0 +1,6 @@
+@APNABLOG_proj_HostAddress = http://localhost:5096
+
+GET {{APNABLOG_proj_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
