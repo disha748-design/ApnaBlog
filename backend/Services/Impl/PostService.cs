@@ -208,15 +208,23 @@ namespace BlogApi.Services.Impl
 
         public async Task<IEnumerable<Post>> GetPublishedAsync(int page = 1, int pageSize = 20)
         {
-            return await _postRepo.Query()
+            // Fetch all published posts ordered by CreatedAt descending
+            var allPosts = await _postRepo.Query()
                 .Where(p => p.Status == PostStatus.Published)
-                .Include(p => p.Author)    // Include author to avoid null navigation
-                .Include(p => p.Images)    // Include images
+                .Include(p => p.Author)
+                .Include(p => p.Images)
                 .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync(); // fetch everything first
+
+            // Apply pagination in memory to avoid OFFSET/FETCH
+            var pagedPosts = allPosts
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToList();
+
+            return pagedPosts;
         }
+
         public async Task<bool> DeletePostAsync(Guid postId, string userId)
         {
             var post = await _postRepo.Query()
@@ -312,6 +320,17 @@ namespace BlogApi.Services.Impl
                 .Take(5)  // top 5 posts
                 .ToListAsync();
         }
+        public async Task<Post?> GetByIdAsyncForEditor(Guid postId)
+        {
+            return await _postRepo.Query()
+                .Include(p => p.Author)
+                .Include(p => p.Images)
+                .Include(p => p.Comments)
+                .Include(p => p.Likes)
+                .Include(p => p.Views)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+        }
+
 
     }
 }

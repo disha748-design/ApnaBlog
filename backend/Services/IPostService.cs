@@ -28,6 +28,7 @@ namespace BlogApi.Services
 
 
 
+        Task<Post?> GetByIdAsyncForEditor(Guid postId);
 
         Task SubmitEditForApprovalAsync(Post post, PostEditDto dto);
 
