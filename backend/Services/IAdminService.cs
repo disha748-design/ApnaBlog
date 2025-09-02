@@ -9,5 +9,6 @@ namespace BlogApi.Services
     {
         Task<IEnumerable<PendingUserDto>> GetPendingUsersAsync();
         Task<bool> ApproveUserAsync(string userId, string role = "User");
+        Task<bool> RejectUserAsync(string userId);
     }
 }
