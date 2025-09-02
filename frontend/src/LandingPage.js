@@ -26,21 +26,23 @@ const LandingPage = () => {
     background: themeColors.buttonSecondary,
     border: "none",
     cursor: "pointer",
-    fontSize: "0.9rem",
+    fontSize: "0.95rem",
     color: "#fff",
     padding: 0,
+    fontFamily: "'Poppins', sans-serif",
   };
 
   const footerBtnStyle = {
     ...navBtnStyle,
     fontSize: "0.85rem",
-    textDecoration: "underline",
+    textDecoration: "none", // removed underline
+    fontWeight: "400",
   };
 
   return (
     <div
       style={{
-        fontFamily: "'Georgia', serif",
+        fontFamily: "'Poppins', sans-serif",
         backgroundColor: themeColors.mainBg,
         minHeight: "100vh",
         display: "flex",
@@ -62,14 +64,17 @@ const LandingPage = () => {
         <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }}>
           <button
             onClick={handleOpenModal}
-            style={{ ...navBtnStyle, fontSize: "1.5rem" }}
+            style={{ ...navBtnStyle, fontSize: "1.5rem", fontWeight: "700" }}
           >
             ApnaBlog
           </button>
         </div>
 
         {/* Desktop Links */}
-        <div className="desktop-nav" style={{ display: "flex", gap: "1.8rem", fontSize: "0.9rem" }}>
+        <div
+          className="desktop-nav"
+          style={{ display: "flex", gap: "1.8rem", fontSize: "0.9rem" }}
+        >
           <button onClick={handleOpenModal} style={navBtnStyle}>Read</button>
           <button onClick={handleOpenModal} style={navBtnStyle}>Write</button>
           <button onClick={handleOpenModal} style={navBtnStyle}>Sign in</button>
@@ -128,6 +133,7 @@ const LandingPage = () => {
               lineHeight: "1.2",
               marginBottom: "1rem",
               fontWeight: "700",
+              fontFamily: "'Georgia', serif",
               color: themeColors.textDark,
             }}
           >
@@ -135,12 +141,14 @@ const LandingPage = () => {
           </h1>
           <p
             style={{
-              fontSize: "1.25rem",
+              fontSize: "1.2rem",
               marginBottom: "2.5rem",
               color: themeColors.textDark,
+              fontFamily: "'Poppins', sans-serif",
             }}
           >
-            Read. Write. Connect. Turn your thoughts into impact and be part of a community that cares.
+            Read. Write. Connect. Turn your thoughts into impact and be part of
+            a community that cares.
           </p>
 
           {/* Get Started Button opens UserEditorAuthModal */}
@@ -154,6 +162,8 @@ const LandingPage = () => {
               border: "none",
               cursor: "pointer",
               fontSize: "1rem",
+              fontFamily: "'Poppins', sans-serif",
+              fontWeight: "600",
             }}
           >
             Get Started
@@ -187,17 +197,30 @@ const LandingPage = () => {
         <button onClick={handleOpenModal} style={footerBtnStyle}>About</button>
         <button onClick={handleOpenModal} style={footerBtnStyle}>Contact</button>
         <button onClick={handleOpenModal} style={footerBtnStyle}>Terms & Privacy</button>
-        <button onClick={() => navigate("/admin-login")} style={footerBtnStyle}>Admin Portal</button>
+        <button onClick={() => navigate("/admin-login")} style={footerBtnStyle}>
+          Admin Portal
+        </button>
       </footer>
 
       {/* Modals */}
       {showModal && <AuthModal onClose={handleCloseModal} />}
-      {showUserEditorModal && <UserEditorAuthModal onClose={() => setShowUserEditorModal(false)} />}
+      {showUserEditorModal && (
+        <UserEditorAuthModal onClose={() => setShowUserEditorModal(false)} />
+      )}
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .hamburger { display: block !important; }
+        }
+
+        button {
+          transition: all 0.2s ease-in-out;
+        }
+        button:hover {
+          opacity: 0.8;
         }
       `}</style>
     </div>

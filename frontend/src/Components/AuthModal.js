@@ -1,22 +1,19 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
-import { AuthContext } from "../AuthContext";
 
-const AuthModal = ({ onClose }) => {
+const AuthModal = ({ show, onClose }) => {
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
-
   const [isRegister, setIsRegister] = useState(true);
   const [formData, setFormData] = useState({
-    displayName: "",
     email: "",
     password: "",
-    requestedRole: "User",
+    displayName: "",
+    requestedRole: "User", // default
   });
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+
+  if (!show) return null;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,82 +21,67 @@ const AuthModal = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
-    setSuccess("");
 
     try {
-      const url = isRegister ? "/Auth/register" : "/Auth/login";
-      const payload = isRegister
-        ? formData
-        : { email: formData.email, password: formData.password };
-
-      const res = await api.post(url, payload, { withCredentials: true });
-      const user = res.data;
-
       if (isRegister) {
+        await api.post("/Auth/register", formData);
+        alert("Registration successful! You can now log in.");
         setIsRegister(false);
-        setFormData({
-          displayName: "",
-          email: "",
-          password: "",
-          requestedRole: "User",
-        });
-        setError("✅ Registration successful! Waiting for admin approval.");
       } else {
-        if (user.role !== "Admin" && user.isApproved === false) {
-          setError("⏳ Waiting for approval from admin.");
-          return;
-        }
-        setUser(user);
-        localStorage.setItem("user", JSON.stringify(user));
-        setSuccess("✅ Logged in successfully!");
+        const res = await api.post("/Auth/login", {
+          email: formData.email,
+          password: formData.password,
+        });
+        localStorage.setItem("token", res.data.token);
+        navigate("/profile");
         onClose();
-
-        
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data || err.message);
-    } finally {
-      setLoading(false);
+
+      let message = "Something went wrong";
+
+      // Case 1: Identity returns array of errors
+      if (Array.isArray(err.response?.data)) {
+        message = err.response.data.map((e) => e.description).join(", ");
+      }
+      // Case 2: Error object with message
+      else if (err.response?.data?.message) {
+        message = err.response.data.message;
+      }
+      // Case 3: String response
+      else if (typeof err.response?.data === "string") {
+        message = err.response.data;
+      }
+      // Fallback
+      else {
+        message = err.message;
+      }
+
+      setError(message);
     }
   };
 
   return (
-    <div
-      style={styles.overlay}
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-    >
-      <div style={styles.modal}>
-        <button onClick={onClose} style={styles.closeBtn}>✕</button>
-        <h2>{isRegister ? "Create Account" : "Login"}</h2>
-
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {success && <p style={{ color: "green" }}>{success}</p>}
-
-        <form onSubmit={handleSubmit} style={styles.form}>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <h2 className="text-xl font-bold mb-4">
+          {isRegister ? "Register" : "Login"}
+        </h2>
+        {error && (
+          <p className="text-red-600 text-sm mb-3 whitespace-pre-line">{error}</p>
+        )}
+        <form onSubmit={handleSubmit} className="space-y-3">
           {isRegister && (
-            <>
-              <input
-                type="text"
-                name="displayName"
-                placeholder="Full Name"
-                value={formData.displayName}
-                onChange={handleChange}
-                required
-                style={styles.input}
-              />
-              <select
-                name="requestedRole"
-                value={formData.requestedRole}
-                onChange={handleChange}
-                style={styles.input}
-              >
-                <option value="User">User</option>
-                <option value="Editor">Editor</option>
-              </select>
-            </>
+            <input
+              type="text"
+              name="displayName"
+              placeholder="Display Name"
+              value={formData.displayName}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            />
           )}
           <input
             type="email"
@@ -107,8 +89,8 @@ const AuthModal = ({ onClose }) => {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
+            className="w-full p-2 border rounded"
             required
-            style={styles.input}
           />
           <input
             type="password"
@@ -116,50 +98,45 @@ const AuthModal = ({ onClose }) => {
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
+            className="w-full p-2 border rounded"
             required
-            style={styles.input}
           />
-          <button type="submit" style={styles.submitBtn} disabled={loading}>
-            {loading ? "Please wait..." : isRegister ? "Register" : "Login"}
+          {isRegister && (
+            <select
+              name="requestedRole"
+              value={formData.requestedRole}
+              onChange={handleChange}
+              className="w-full p-2 border rounded"
+            >
+              <option value="User">User</option>
+              <option value="Editor">Editor</option>
+            </select>
+          )}
+          <button
+            type="submit"
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
+          >
+            {isRegister ? "Register" : "Login"}
           </button>
         </form>
-
-        <p style={{ marginTop: "1rem", textAlign: "center" }}>
-          {isRegister ? "Already have an account?" : "New here?"}{" "}
-          <span
-            style={{ color: "#5E936C", cursor: "pointer", fontWeight: "bold" }}
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setError("");
-              setSuccess("");
-              setFormData({ displayName: "", email: "", password: "", requestedRole: "User" });
-            }}
+        <p className="mt-3 text-sm text-gray-600 text-center">
+          {isRegister ? "Already have an account?" : "Don’t have an account?"}{" "}
+          <button
+            onClick={() => setIsRegister(!isRegister)}
+            className="text-green-600 underline"
           >
             {isRegister ? "Login" : "Register"}
-          </span>
+          </button>
         </p>
+        <button
+          onClick={onClose}
+          className="mt-4 text-gray-500 hover:text-gray-700 w-full"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );
-};
-
-const styles = {
-  overlay: {
-    position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-    backgroundColor: "rgba(0,0,0,0.6)",
-    display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000,
-  },
-  modal: {
-    background: "#fff", padding: "2rem", borderRadius: "15px", width: "400px",
-    maxWidth: "90%", position: "relative", boxShadow: "0 5px 25px rgba(0,0,0,0.35)",
-  },
-  closeBtn: {
-    position: "absolute", top: "10px", right: "10px",
-    border: "none", background: "transparent", fontSize: "1.3rem", cursor: "pointer",
-  },
-  form: { display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" },
-  input: { padding: "0.7rem", borderRadius: "10px", border: "1px solid #ccc" },
-  submitBtn: { background: "#5E936C", color: "white", padding: "0.8rem", border: "none", borderRadius: "10px", cursor: "pointer", fontWeight: "bold", fontSize: "1rem" },
 };
 
 export default AuthModal;
