@@ -1,0 +1,29 @@
+# =======================
+# Backend (.NET)
+# =======================
+backend/bin/
+backend/obj/
+backend/*.user
+backend/*.suo
+backend/*.vs/
+backend/*.db
+backend/*.log
+
+# =======================
+# Frontend (React / Node)
+# =======================
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.env
+frontend/.DS_Store
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# =======================
+# OS / IDE Files
+# =======================
+*.DS_Store
+*.Thumbs.db
+.vscode/

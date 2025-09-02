@@ -2,7 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using System.Net.Http.Headers;
+
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+
 using Microsoft.Extensions.Hosting;
 using System.IO;
 using Microsoft.Extensions.Configuration;
@@ -51,7 +55,17 @@ builder.Services.ConfigureApplicationCookie(opts =>
         return Task.CompletedTask;
     };
 });
+// ✅ Configure HuggingFaceSettings from appsettings.json
+builder.Services.Configure<HuggingFaceSetting>(
+    builder.Configuration.GetSection("HuggingFace"));
 
+// ✅ Register HuggingFaceServices with HttpClient and set Authorization header here
+builder.Services.AddHttpClient<HuggingFaceServices>((sp, client) =>
+{
+    var settings = sp.GetRequiredService<IOptions<HuggingFaceSetting>>().Value;
+    client.DefaultRequestHeaders.Authorization =
+        new AuthenticationHeaderValue("Bearer", settings.ApiKey);
+});
 // ----- Repositories & Services -----
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
