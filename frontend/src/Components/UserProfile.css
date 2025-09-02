@@ -1,0 +1,254 @@
+/* General container */
+.profile-container {
+  font-family: "Poppins", sans-serif;
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: #3e5f44;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.navbar-logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.navbar-logo:hover { transform: scale(1.05); }
+
+.logout-btn {
+  background: #93da97;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+.logout-btn:hover {
+  background: #5e936c;
+  color: #fff;
+}
+
+/* Main content wrapper */
+.profile-main {
+  max-width: 1100px;
+  margin: 100px auto 25px; /* added top margin to avoid navbar overlap */
+  padding: 0 20px;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.profile-welcome {
+  font-size: 1.8rem;
+  color: #3e5f44;
+  font-weight: 600;
+}
+
+/* Profile grid */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* single column by default */
+  gap: 1.5rem;
+}
+
+/* Stats + Tips container (side by side on large screens) */
+.stats-tips-container {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Each card takes half width on large screens */
+.stats-tips-container .profile-card {
+  flex: 1 1 45%;
+  min-width: 300px;
+}
+
+/* Profile card base styles */
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.profile-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+}
+
+/* Center card (avatar) */
+.center-card {
+  text-align: center;
+}
+
+.profile-icon {
+  color: #5e936c;
+  margin-bottom: 15px;
+}
+
+.profile-username {
+  font-size: 1.8rem;
+  color: #3e5f44;
+  font-weight: 700;
+}
+
+.profile-email {
+  color: #5e936c;
+  font-weight: 500;
+}
+
+/* Stats card */
+.stats-card p {
+  margin: 10px 0;
+  font-size: 1rem;
+}
+
+/* Tips list */
+.tips-list {
+  padding-left: 1rem;
+  text-align: left;
+  width: 100%;
+}
+
+.tip-item {
+  margin-bottom: 0.5rem;
+}
+
+/* About & Preferences */
+.section-title {
+  font-size: 1.4rem;
+  color: #3e5f44;
+  margin-bottom: 15px;
+  border-bottom: 3px solid #5e936c;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+/* Display section */
+.display-section p {
+  margin: 12px 0;
+  line-height: 1.5;
+  font-size: 1rem;
+}
+
+.display-section .edit-btn {
+  margin-top: 12px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 12px;
+  background: #3e5f44;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.display-section .edit-btn:hover {
+  background: #2f4f33;
+}
+
+/* Edit mode inputs */
+.textarea, .input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+}
+
+.pref-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.remove-btn {
+  margin-left: 12px;
+  padding: 4px 10px;
+  background: #ff6b6b;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+.remove-btn:hover { background: #d9534f; }
+
+.add-btn, .save-btn {
+  margin-top: 12px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 12px;
+  background: #3e5f44;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.add-btn:hover, .save-btn:hover { background: #2f4f33; }
+
+.success-msg {
+  margin-top: 12px;
+  color: #3e5f44;
+  font-weight: 600;
+  animation: fadein 0.5s;
+}
+
+/* Footer */
+.profile-footer {
+  text-align: center;
+  margin-top: 40px;
+  padding: 15px 0;
+  background: #f0f8ff;
+  color: #3e5f44;
+  font-weight: 500;
+  border-top: 1px solid #5e936c;
+}
+
+/* Animation */
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .stats-tips-container {
+    flex-direction: column;
+  }
+  .stats-tips-container .profile-card {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .profile-grid {
+    gap: 20px;
+  }
+  .profile-card {
+    padding: 20px;
+  }
+}

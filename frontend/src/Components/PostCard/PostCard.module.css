@@ -1,0 +1,28 @@
+.card {
+  border-bottom: 1px solid #eee;
+  padding: 16px 0;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.title:hover {
+  text-decoration: underline;
+}
+
+.meta {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.stats {
+  font-size: 14px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}

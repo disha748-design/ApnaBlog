@@ -1,0 +1,23 @@
+/* Hide normal nav on small screens */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none !important;
+    flex-direction: column;
+    background-color: #043d1eff;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 200px;
+    padding: 1rem;
+    border-radius: 0 0 8px 8px;
+    z-index: 999;
+  }
+
+  .nav-links.open {
+    display: flex !important;
+  }
+
+  .hamburger {
+    display: block !important;
+  }
+}
