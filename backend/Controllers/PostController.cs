@@ -197,6 +197,14 @@ namespace BlogApi.Controllers
 
             return Ok(result);
         }
+        [HttpGet("{id}/editor")]
+        public async Task<IActionResult> GetForEditor(Guid id)
+        {
+            var post = await _svc.GetByIdAsyncForEditor(id); // ✅ use _svc
+            if (post == null) return NotFound();
+            return Ok(post);
+        }
+
 
     }
 }

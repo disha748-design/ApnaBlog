@@ -156,7 +156,7 @@ export default function HomePage() {
       {/* ... Floating blobs ... */}
 
       {/* Header */}
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 2rem", backgroundColor: themeColors.headerFooterBg, color: "#fff", position: "relative", zIndex: 10, flexWrap: "wrap" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem 0", backgroundColor: themeColors.headerFooterBg, color: "#fff", position: "relative", zIndex: 10, flexWrap: "wrap" }}>
         <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }} onClick={() => navigate("/")}>
           ApnaBlog
         </div>

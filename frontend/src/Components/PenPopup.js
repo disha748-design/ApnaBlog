@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function PenPopup() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate(); // 👈 React Router hook
 
   return (
     <>
@@ -12,7 +14,7 @@ export default function PenPopup() {
           position: "fixed",
           bottom: "20px",
           right: "20px",
-          backgroundColor: "#5E936C", // ApnaBlog green
+          backgroundColor: "#5E936C",
           color: "#fff",
           width: "60px",
           height: "60px",
@@ -77,10 +79,10 @@ export default function PenPopup() {
             }}
             onClick={() => {
               setOpen(false);
-              window.location.href = "/create-post";
+              navigate("/create-post"); // 👈 smooth navigation
             }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#5E936C"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#3E5F44"}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#5E936C")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#3E5F44")}
           >
             Write Now
           </button>

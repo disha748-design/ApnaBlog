@@ -16,6 +16,7 @@ import ContactPage from "./Components/ContactPage";
 import AdminDashboard from "./Components/AdminDashboard";
 import AdminLogin from "./Components/AdminLogin";
 import EditorDashboard from "./Components/EditorDashboard";
+import EditorEditPost from "./Components/EditorEditPost";
 
 // Protected route for logged-in users
 export const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -99,6 +100,8 @@ function App() {
 
         {/* Admin Login */}
         <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/editor-edit/:id" element={<EditorEditPost />} />
+
 
         {/* Admin Dashboard */}
   <Route
@@ -109,8 +112,6 @@ function App() {
       </ProtectedRoute>
     }
   />
-
-        
 
         {/* Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />
