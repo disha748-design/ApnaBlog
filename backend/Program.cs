@@ -1,15 +1,14 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Builder;
-using System.Net.Http.Headers;
-
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-
-using Microsoft.Extensions.Hosting;
 using System.IO;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using BlogApi.Data;
 using BlogApi.Models;
 using BlogApi.Repositories;
@@ -37,13 +36,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.ConfigureApplicationCookie(opts =>
 {
     opts.Cookie.HttpOnly = true;
-    opts.Cookie.SecurePolicy = CookieSecurePolicy.None; // allow HTTP for localhost
-    opts.Cookie.SameSite = SameSiteMode.Lax;             // cross-site requests in dev
+    opts.Cookie.SecurePolicy = CookieSecurePolicy.None;
+    opts.Cookie.SameSite = SameSiteMode.Lax;
     opts.ExpireTimeSpan = TimeSpan.FromDays(7);
     opts.SlidingExpiration = true;
     opts.LoginPath = "/api/Auth/login";
 
-    // prevent redirects for API
     opts.Events.OnRedirectToLogin = ctx =>
     {
         ctx.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -55,17 +53,7 @@ builder.Services.ConfigureApplicationCookie(opts =>
         return Task.CompletedTask;
     };
 });
-// ✅ Configure HuggingFaceSettings from appsettings.json
-builder.Services.Configure<HuggingFaceSetting>(
-    builder.Configuration.GetSection("HuggingFace"));
 
-// ✅ Register HuggingFaceServices with HttpClient and set Authorization header here
-builder.Services.AddHttpClient<HuggingFaceServices>((sp, client) =>
-{
-    var settings = sp.GetRequiredService<IOptions<HuggingFaceSetting>>().Value;
-    client.DefaultRequestHeaders.Authorization =
-        new AuthenticationHeaderValue("Bearer", settings.ApiKey);
-});
 // ----- Repositories & Services -----
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -74,12 +62,24 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IPostService, PostService>();
 
+// ----- AI Services -----
+builder.Services.Configure<HuggingFaceSetting>(
+    builder.Configuration.GetSection("HuggingFace"));
+builder.Services.AddHttpClient<HuggingFaceServices>((sp, client) =>
+{
+    var settings = sp.GetRequiredService<IOptions<HuggingFaceSetting>>().Value;
+    client.DefaultRequestHeaders.Authorization =
+        new AuthenticationHeaderValue("Bearer", settings.ApiKey);
+});
+
+builder.Services.AddHttpClient<CohereServices>();
+builder.Services.AddScoped<CohereServices>();
+
 // ----- Controllers / Swagger -----
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.ReferenceHandler =
             System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -109,7 +109,6 @@ using (var scope = app.Services.CreateScope())
     var userMgr = services.GetRequiredService<UserManager<ApplicationUser>>();
     var config = services.GetRequiredService<IConfiguration>();
 
-    // seed roles
     string[] roles = new[] { "Admin", "Editor", "User" };
     foreach (var r in roles)
     {
@@ -117,7 +116,6 @@ using (var scope = app.Services.CreateScope())
             await roleMgr.CreateAsync(new IdentityRole(r));
     }
 
-    // seed admin
     var adminEmail = config["AdminSeed:Email"];
     var adminPassword = config["AdminSeed:Password"];
     if (!string.IsNullOrWhiteSpace(adminEmail) && !string.IsNullOrWhiteSpace(adminPassword))
@@ -141,6 +139,7 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// ----- Middleware -----
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -148,14 +147,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseStaticFiles(); // serve wwwroot (uploads)
+app.UseStaticFiles();
 app.UseRouting();
-
-app.UseCors("AllowReactApp"); // ✅ allow React front-end
-
+app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
