@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import api from "../api";
-import { FaTrash, FaPlus, FaPen } from "react-icons/fa";
+import { FaPlus, FaPen } from "react-icons/fa";
 
 export default function EditorEditPost() {
   const { id } = useParams();
@@ -84,10 +84,6 @@ export default function EditorEditPost() {
     }
   };
 
-  const handleDeleteBlock = (index) => {
-    setBlocks(blocks.filter((_, i) => i !== index));
-  };
-
   const handleSubmit = async () => {
     if (!title.trim()) return alert("Title cannot be empty!");
     setIsSubmitting(true);
@@ -133,7 +129,14 @@ export default function EditorEditPost() {
   if (!post) return <p style={{ padding: "2rem" }}>Post not found</p>;
 
   return (
-    <div style={{ backgroundColor: colors.mainBg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div
+      style={{
+        backgroundColor: colors.mainBg,
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       {/* HEADER */}
       <nav
         style={{
@@ -206,28 +209,8 @@ export default function EditorEditPost() {
                 style={{ width: "100%", marginTop: "8px", borderRadius: "8px" }}
               />
             )}
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                marginTop: "8px",
-                flexWrap: "wrap",
-              }}
-            >
+            <div style={{ marginTop: "8px" }}>
               <input type="file" accept="image/*" onChange={(e) => handleAddImage(e, idx)} />
-              <button
-                onClick={() => handleDeleteBlock(idx)}
-                style={{
-                  background: "red",
-                  color: "#fff",
-                  padding: "6px 12px",
-                  borderRadius: "6px",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                <FaTrash />
-              </button>
             </div>
           </div>
         ))}
@@ -245,33 +228,70 @@ export default function EditorEditPost() {
             style={{
               background: colors.buttonBg,
               color: colors.buttonText,
-              padding: "10px 20px",
+              padding: "10px",
               borderRadius: "8px",
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+              flex: 1,
             }}
+            className="hover-btn"
           >
-            <FaPlus /> Add Block
+            <FaPlus />
+            <span
+              className="btn-text"
+              style={{
+                position: "absolute",
+                opacity: 0,
+                whiteSpace: "nowrap",
+                transition: "opacity 0.3s",
+              }}
+            >
+              Add Block
+            </span>
           </button>
+
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
             style={{
               background: colors.buttonBg,
               color: colors.buttonText,
-              padding: "10px 20px",
+              padding: "10px",
               borderRadius: "8px",
               cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+              flex: 1,
             }}
+            className="hover-btn"
           >
-            {isSubmitting ? "Updating..." : "Save Changes"} <FaPen />
+            <FaPen />
+            <span
+              className="btn-text"
+              style={{
+                position: "absolute",
+                opacity: 0,
+                whiteSpace: "nowrap",
+                transition: "opacity 0.3s",
+              }}
+            >
+              {isSubmitting ? "Updating..." : "Save Changes"}
+            </span>
           </button>
+
           <button
             onClick={() => navigate("/editor-dashboard")}
             style={{
-              padding: "10px 20px",
+              padding: "10px",
               borderRadius: "8px",
               border: `1px solid ${colors.buttonBg}`,
               cursor: "pointer",
+              flex: 1,
             }}
           >
             Cancel
@@ -291,6 +311,13 @@ export default function EditorEditPost() {
       >
         © 2025 ApnaBlog
       </footer>
+
+      {/* HOVER TEXT CSS */}
+      <style>{`
+        .hover-btn:hover .btn-text {
+          opacity: 1;
+        }
+      `}</style>
     </div>
   );
 }
