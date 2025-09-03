@@ -29,10 +29,11 @@ namespace BlogApi.Controllers
             if (string.IsNullOrWhiteSpace(request.Content))
                 return BadRequest("Content cannot be empty.");
 
+            // Updated prompt to enforce only title output
             var payload = new
             {
-                model = "command", // free-access Cohere model
-                prompt = $"Write a short, catchy blog title for the following content. Return only the title, nothing else:\n\n{request.Content}",
+                model = "command",
+                prompt = $"Generate a concise blog title for the following content. Do NOT add any extra text. Return only the title.\n\n{request.Content}",
                 max_tokens = 40,
                 temperature = 0.7
             };
@@ -55,13 +56,15 @@ namespace BlogApi.Controllers
             var result = await response.Content.ReadAsStringAsync();
             var parsed = JsonSerializer.Deserialize<JsonElement>(result);
 
-            // Extract the title text from the generations array
             if (parsed.TryGetProperty("generations", out var gens) && gens.GetArrayLength() > 0)
             {
                 var rawTitle = gens[0].GetProperty("text").GetString()?.Trim() ?? "";
 
-                // Remove leading/trailing quotes if present
-                var cleanTitle = rawTitle.Trim().Trim('"', '\'');
+                // Take only the first line (in case extra text sneaks in)
+                var firstLine = rawTitle.Split('\n')[0].Trim();
+
+                // Remove any quotes if present
+                var cleanTitle = firstLine.Trim('"', '\'');
 
                 return Ok(new { title = cleanTitle });
             }

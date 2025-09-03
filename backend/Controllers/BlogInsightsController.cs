@@ -1,7 +1,4 @@
-﻿using BlogApi.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -22,95 +19,36 @@ namespace BlogApi.Controllers
             _cohereApiKey = configuration["Cohere:ApiKey"];
         }
 
-        [HttpGet("me")]
-        public async Task<IActionResult> GetMyInsights()
+        [HttpGet("tips")]
+        public async Task<IActionResult> GetTips()
         {
-            try
+            var prompt = "Give me 5 short tips to increase blog engagement. Format each tip on a new line.";
+
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_cohereApiKey}");
+
+            var requestBody = new
             {
-                // --- Fetch user stats with cookie auth ---
-                var handler = new HttpClientHandler { UseCookies = true, CookieContainer = new System.Net.CookieContainer() };
-                foreach (var cookie in Request.Cookies)
-                {
-                    handler.CookieContainer.Add(new Uri("http://localhost:5096"), new System.Net.Cookie(cookie.Key, cookie.Value));
-                }
+                model = "command-r",
+                message = prompt
+            };
 
-                var client = new HttpClient(handler);
-                var statsResponse = await client.GetAsync("http://localhost:5096/api/UserStats/me");
+            var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+            var response = await client.PostAsync("https://api.cohere.ai/v1/chat", content);
 
-                if (!statsResponse.IsSuccessStatusCode)
-                    return StatusCode((int)statsResponse.StatusCode, "Failed to fetch user stats.");
+            if (!response.IsSuccessStatusCode)
+                return StatusCode((int)response.StatusCode, "Cohere API failed.");
 
-                var statsJson = await statsResponse.Content.ReadAsStringAsync();
-                var stats = JsonSerializer.Deserialize<UserStats>(statsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var json = await response.Content.ReadAsStringAsync();
+            var cohereResponse = JsonSerializer.Deserialize<CohereChatResponse>(json);
 
-                if (stats == null)
-                    return Ok(new { tips = "No stats available for this user." });
-
-                // --- Prompt ---
-                var prompt = $@"
-You are an AI assistant analyzing a user's blog stats.
-Stats:
-- Total Posts: {stats.TotalPosts},
-- Most Viewed: {stats.MostViewedPost?.Title ?? "N/A"},
-- Most Commented: {stats.MostCommentedPost?.Title ?? "N/A"},
-- Most Liked: {stats.MostLikedPost?.Title ?? "N/A"}.
-Give 2-3 actionable tips to help the user increase engagement.
-";
-
-                // --- Call Cohere ---
-                var cohereClient = _httpClientFactory.CreateClient();
-                cohereClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_cohereApiKey}");
-
-                var cohereRequest = new
-                {
-                    model = "command-r7b-12-2024",
-                    messages = new[]
-                    {
-                        new {
-                            role = "user",
-                            content = new object[] {
-                                new { type = "text", text = prompt }
-                            }
-                        }
-                    }
-                };
-
-                var requestContent = new StringContent(JsonSerializer.Serialize(cohereRequest), Encoding.UTF8, "application/json");
-                var cohereResponse = await cohereClient.PostAsync("https://api.cohere.ai/v1/chat", requestContent);
-
-                if (!cohereResponse.IsSuccessStatusCode)
-                    return StatusCode((int)cohereResponse.StatusCode, await cohereResponse.Content.ReadAsStringAsync());
-
-                var cohereJson = await cohereResponse.Content.ReadAsStringAsync();
-                var cohereResult = JsonSerializer.Deserialize<CohereChatResponse>(cohereJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                var tips = cohereResult?.Message?.Content?.FirstOrDefault()?.Text ?? "No tips generated.";
-
-                return Ok(new { tips });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error generating AI tips: {ex.Message}");
-                return Ok(new { tips = "Unable to fetch insights right now." });
-            }
+            return Ok(new { tips = cohereResponse.text.Trim() });
         }
 
-        // --- Cohere models ---
         private class CohereChatResponse
         {
-            public CohereMessage Message { get; set; }
-        }
-
-        private class CohereMessage
-        {
-            public string Role { get; set; }
-            public CohereContent[] Content { get; set; }
-        }
-
-        private class CohereContent
-        {
-            public string Type { get; set; }
-            public string Text { get; set; }
+            public string response_id { get; set; }
+            public string text { get; set; }
         }
     }
 }

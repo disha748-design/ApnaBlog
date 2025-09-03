@@ -19,6 +19,8 @@ export default function UserProfile() {
     mostCommented: { id: null, title: "N/A" },
     mostLiked: { id: null, title: "N/A" },
   });
+  const [tips, setTips] = useState([]);
+  const [loadingTips, setLoadingTips] = useState(false);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -47,8 +49,23 @@ export default function UserProfile() {
     }
   };
 
+  // Fetch tips from Cohere
+  const fetchTips = async () => {
+    setLoadingTips(true);
+    try {
+      const res = await api.get("/BlogInsights/tips", { withCredentials: true });
+      setTips(res.data.tips.split("\n").filter(t => t.trim()));
+    } catch (err) {
+      console.error("Failed to fetch tips:", err);
+      setTips(["Failed to load tips."]);
+    } finally {
+      setLoadingTips(false);
+    }
+  };
+
   useEffect(() => {
     fetchProfile();
+    fetchTips();
   }, [navigate]);
 
   // Preference handlers
@@ -195,6 +212,18 @@ export default function UserProfile() {
             <p>👀 Most Viewed: {stats.mostViewed.id ? <Link to={`/posts/${stats.mostViewed.id}`} className="post-link">{stats.mostViewed.title}</Link> : stats.mostViewed.title}</p>
             <p>💬 Most Commented: {stats.mostCommented.id ? <Link to={`/posts/${stats.mostCommented.id}`} className="post-link">{stats.mostCommented.title}</Link> : stats.mostCommented.title}</p>
             <p>👍 Most Liked: {stats.mostLiked.id ? <Link to={`/posts/${stats.mostLiked.id}`} className="post-link">{stats.mostLiked.title}</Link> : stats.mostLiked.title}</p>
+          </div>
+
+          {/* Tips */}
+          <div className="profile-card insights-card">
+            <h3 className="section-title">💡 Blog Growth Tips</h3>
+            {loadingTips ? (
+              <p>Loading tips...</p>
+            ) : (
+              <ul style={{ paddingLeft: "1rem" }}>
+                {tips.map((tip, idx) => <li key={idx}>{tip}</li>)}
+              </ul>
+            )}
           </div>
         </div>
       </main>

@@ -5,6 +5,7 @@ import "react-quill/dist/quill.snow.css";
 import api from "../api";
 import ErrorBoundary from "../Components/ErrorBoundary";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { FaHome, FaUser } from "react-icons/fa";
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -131,20 +132,27 @@ export default function CreatePost() {
         <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }} onClick={() => navigate("/home")}>ApnaBlog</div>
 
         <div className="desktop-nav" style={{ display: "flex", gap: "1.8rem", fontSize: "0.9rem" }}>
-          <button style={navBtnStyle} onClick={() => navigate("/home")}>Home</button>
-          <button style={navBtnStyle} onClick={() => navigate("/profile")}>Profile</button>
+          <button style={navBtnStyle} onClick={() => navigate("/home")}>
+            <FaHome style={{ marginRight: "6px" }} /> Home
+          </button>
+          <button style={navBtnStyle} onClick={() => navigate("/profile")}>
+            <FaUser style={{ marginRight: "6px" }} /> Profile
+          </button>
         </div>
 
         <div className="hamburger" style={{ fontSize: "1.5rem", cursor: "pointer", display: "none", color: "#fff" }} onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FaTimes /> : <FaBars />}
         </div>
-
-        {menuOpen && (
-          <div style={{ position: "absolute", top: "100%", right: 0, left: 0, backgroundColor: themeColors.headerFooterBg, display: "flex", flexDirection: "column", gap: "1rem", padding: "1rem 2rem", zIndex: 1000 }}>
-            <button style={{ ...navBtnStyle, color: "#fff" }} onClick={() => navigate("/home")}>Home</button>
-            <button style={{ ...navBtnStyle, color: "#fff" }} onClick={() => navigate("/profile")}>Profile</button>
-          </div>
-        )}
+      {menuOpen && (
+        <div style={{ position: "absolute", top: "100%", right: 0, left: 0, backgroundColor: themeColors.headerFooterBg, display: "flex", flexDirection: "column", gap: "1rem", padding: "1rem 2rem", zIndex: 1000 }}>
+          <button style={{ ...navBtnStyle, color: "#fff" }} onClick={() => navigate("/home")}>
+            <FaHome style={{ marginRight: "6px" }} /> Home
+          </button>
+          <button style={{ ...navBtnStyle, color: "#fff" }} onClick={() => navigate("/profile")}>
+            <FaUser style={{ marginRight: "6px" }} /> Profile
+          </button>
+        </div>
+      )}
       </header>
 
       {/* Main Content */}
