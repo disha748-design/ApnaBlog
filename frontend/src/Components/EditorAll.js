@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { AuthContext } from "../AuthContext";
 import { FaEdit, FaTrash, FaSun, FaMoon, FaBars, FaTimes as FaTimesIcon } from "react-icons/fa";
-import "./EditorAll.css";
 
 export default function EditorAll() {
   const navigate = useNavigate();
@@ -26,7 +25,6 @@ export default function EditorAll() {
     text: mode === "light" ? "#1C1C1C" : "#EEE",
   };
 
-  // Fetch all published posts
   const fetchPosts = async () => {
     setLoading(true);
     try {
@@ -45,23 +43,25 @@ export default function EditorAll() {
   }, []);
 
   const handleEdit = (id) => {
-    navigate(`/editor-edit-post/${id}`);
+    navigate(`/editor-edit/${id}`); // go to EditorEditPost.js
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this post?")) return;
-    setActionLoading(true);
-    try {
-      await api.delete(`/Posts/${id}`, { withCredentials: true });
-      alert("Post deleted.");
-      setPosts((prev) => prev.filter((p) => p.id !== id));
-    } catch (err) {
-      console.error("Failed to delete post:", err);
-      alert("Failed to delete post.");
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  if (!window.confirm("Are you sure you want to delete this post?")) return;
+  setActionLoading(true);
+  try {
+    // Call the same endpoint as reject but for delete
+    await api.post(`/Posts/${id}/reject`, { reason: "Deleted by editor" });
+    alert("Post deleted.");
+    setPosts((prev) => prev.filter((p) => p.id !== id));
+  } catch (err) {
+    console.error("Failed to delete post:", err);
+    alert("Failed to delete post.");
+  } finally {
+    setActionLoading(false);
+  }
+};
+
 
   return (
     <div
@@ -92,7 +92,6 @@ export default function EditorAll() {
           ApnaBlog Editor
         </div>
 
-        {/* Desktop Menu */}
         <div className="desktop-menu" style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <button
             onClick={() => setMode(mode === "light" ? "dark" : "light")}
@@ -124,7 +123,6 @@ export default function EditorAll() {
           </button>
         </div>
 
-        {/* Hamburger Menu */}
         <button
           className="hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -178,15 +176,7 @@ export default function EditorAll() {
       )}
 
       {/* Main Content */}
-      <main
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          padding: "2rem",
-          gap: "2rem",
-          flex: 1,
-        }}
-      >
+      <main style={{ display: "flex", flexDirection: "column", padding: "2rem", gap: "2rem", flex: 1 }}>
         {loading ? (
           <div style={{ textAlign: "center", color: "#555" }}>🌱 Loading posts…</div>
         ) : posts.length === 0 ? (
@@ -206,8 +196,7 @@ export default function EditorAll() {
             >
               <h3>{post.title}</h3>
               <p>
-                By <strong>{post.authorUsername}</strong> •{" "}
-                {new Date(post.createdAt).toLocaleDateString()}
+                By <strong>{post.authorUsername}</strong> • {new Date(post.createdAt).toLocaleDateString()}
               </p>
               <p>
                 {post.viewsCount || 0} views • {post.likesCount || 0} likes
@@ -215,13 +204,9 @@ export default function EditorAll() {
 
               {post.images?.[0] && (
                 <img
-                  src={
-                    post.images[0].url.startsWith("http")
-                      ? post.images[0].url
-                      : `${backendBaseUrl}/${post.images[0].url}`
-                  }
+                  src={post.images[0].url.startsWith("http") ? post.images[0].url : `${backendBaseUrl}/${post.images[0].url}`}
                   alt="Post"
-                  style={{ width: "100%", marginTop: "8px", borderRadius: "8px" }}
+                  style={{ width: "200px", maxHeight: "150px", objectFit: "cover", marginTop: "8px", borderRadius: "8px" }}
                 />
               )}
 
