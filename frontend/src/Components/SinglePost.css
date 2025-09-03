@@ -4,6 +4,12 @@ body, html {
   padding: 0;
   font-family: Georgia, serif;
 }
+.btn-small {
+  padding: 3px 8px;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  margin-left: 6px;
+}
 
 .single-post-container {
   background: linear-gradient(135deg, #F4F4F9, #E8FFD7);

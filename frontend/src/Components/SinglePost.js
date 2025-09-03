@@ -28,8 +28,12 @@ export default function SinglePost() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const [liked, setLiked] = useState(false); // toggle like state
-  const [likesCount, setLikesCount] = useState(0); // local like count
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+
+  const [suggestingId, setSuggestingId] = useState(null);
+  const [replySuggestions, setReplySuggestions] = useState({});
+
   const dropdownRef = useRef(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -82,7 +86,6 @@ export default function SinglePost() {
     }
   };
 
-  // **TOGGLE LIKE BUTTON**
   const toggleLike = async () => {
     if (!user) {
       alert("Login required to like this post.");
@@ -93,7 +96,6 @@ export default function SinglePost() {
     const prevLiked = liked;
     const prevLikes = likesCount;
 
-    // Optimistic UI update
     const newLiked = !prevLiked;
     setLiked(newLiked);
     setLikesCount(newLiked ? prevLikes + 1 : prevLikes - 1);
@@ -102,7 +104,6 @@ export default function SinglePost() {
       await api.post(`/Posts/${id}/like-toggle`);
     } catch (err) {
       console.error("Failed to toggle like:", err);
-      // revert on error
       setLiked(prevLiked);
       setLikesCount(prevLikes);
     }
@@ -111,7 +112,9 @@ export default function SinglePost() {
   const handleComment = async () => {
     if (!commentText.trim()) return;
     try {
-      const res = await api.post(`/Posts/${id}/Comments`, { content: commentText });
+      const res = await api.post(`/Posts/${id}/Comments`, {
+        content: commentText,
+      });
       setComments((prev) => [...prev, res.data]);
       setPost((prev) => ({
         ...prev,
@@ -156,11 +159,30 @@ export default function SinglePost() {
     }
   };
 
+  const handleSuggestReplies = async (commentId, commentContent) => {
+    setSuggestingId(commentId);
+    try {
+      const res = await api.post(`/Posts/${id}/Comments/suggest-replies`, {
+        text: commentContent,
+      });
+      setReplySuggestions((prev) => ({
+        ...prev,
+        [commentId]: res.data || [],
+      }));
+    } catch (err) {
+      console.error("Failed to get reply suggestions:", err);
+      alert("Could not fetch suggestions.");
+    } finally {
+      setSuggestingId(null);
+    }
+  };
+
   const handleSpeak = () => {
     if (!post?.content) return;
     if (!speaking) {
       const text =
-        new DOMParser().parseFromString(post.content, "text/html").body.textContent || "";
+        new DOMParser().parseFromString(post.content, "text/html").body
+          .textContent || "";
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.onend = () => setSpeaking(false);
       window.speechSynthesis.speak(utterance);
@@ -233,7 +255,10 @@ export default function SinglePost() {
             />
           ))}
 
-          <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div
+            className="post-content"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
 
           {/* STATS */}
           <div className="post-stats">
@@ -255,26 +280,62 @@ export default function SinglePost() {
 
           {/* COMMENTS SECTION */}
           <div className="comments-section">
-            <h3>Comments</h3>
-            {comments.length === 0 && <p>No comments yet.</p>}
-            {comments.map((c) => (
-              <div key={c.id || Math.random()} className="comment">
-                <strong>{c.authorName || "Anonymous"}</strong>: {c.content || ""}
-                <div className="comment-meta">
-                  <small>{c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}</small>
-                </div>
+          <h3>Comments</h3>
+          {comments.length === 0 && <p>No comments yet.</p>}
+          {comments.map((c) => (
+            <div key={c.id} className="comment">
+              <strong>{c.authorName || "Anonymous"}</strong>: {c.content}
+              <div className="comment-meta">
+                <small>
+                  {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
+                </small>
               </div>
-            ))}
-            <textarea
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Write a comment..."
-              className="comment-input"
-            />
-            <button className="btn-primary" onClick={handleComment}>
-              Post Comment
-            </button>
-          </div>
+
+              {/* ✅ Suggest Replies button: show only if commenter is NOT the post author */}
+              {c.authorId !== post.authorId && (
+                <button
+                  className="btn-primary btn-small"
+                  disabled={suggestingId === c.id}
+                  onClick={() => handleSuggestReplies(c.id, c.content)}
+                >
+                  💡 {suggestingId === c.id ? "Loading..." : "Suggest"}
+                </button>
+              )}
+
+              {/* ✅ Suggestions list */}
+              {replySuggestions[c.id] && replySuggestions[c.id].length > 0 && (
+                <div className="suggestions-list">
+                  {replySuggestions[c.id].map((s, idx) => {
+                    const cleaned = s
+                      .replace(/^\d+[\).\s"]+/, "")
+                      .replace(/^"+|"+$/g, "")
+                      .trim();
+                    return (
+                      <div
+                        key={idx}
+                        className="suggestion-item"
+                        onClick={() => setCommentText(cleaned)}
+                      >
+                        {cleaned}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
+
+          <textarea
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="Write a comment..."
+            className="comment-input"
+          />
+          <button className="btn-primary" onClick={handleComment}>
+            Post Comment
+          </button>
+        </div>
+
         </div>
 
         <div className="post-right">

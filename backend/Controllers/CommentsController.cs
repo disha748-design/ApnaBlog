@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlogApi.DTOs.Comments;
 using BlogApi.Services;
@@ -13,7 +14,13 @@ namespace BlogApi.Controllers
     public class CommentsController : ControllerBase
     {
         private readonly IPostService _svc;
-        public CommentsController(IPostService svc) => _svc = svc;
+        private readonly CohereServices _cohere;
+
+        public CommentsController(IPostService svc, CohereServices cohere)
+        {
+            _svc = svc;
+            _cohere = cohere;
+        }
 
         private string? GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -35,6 +42,17 @@ namespace BlogApi.Controllers
         {
             var comments = await _svc.GetCommentsAsync(postId);
             return Ok(comments);
+        }
+
+        // 🔹 AI Reply Suggestions for a comment
+        [HttpPost("suggest-replies")]
+        public async Task<IActionResult> SuggestReplies(Guid postId, [FromBody] CommentSuggestDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Text))
+                return BadRequest("Comment text is required.");
+
+            var replies = await _cohere.GetReplySuggestions(dto.Text);
+            return Ok(replies);
         }
     }
 }
