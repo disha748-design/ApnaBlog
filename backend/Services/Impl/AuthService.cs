@@ -54,6 +54,8 @@ namespace BlogApi.Services.Impl
     var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
     if (!passwordValid) return null;
 
+    await _signInManager.SignInAsync(user, isPersistent: true);
+
     return user; // Return nullable ApplicationUser?
 }
 
