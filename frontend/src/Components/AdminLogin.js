@@ -155,7 +155,23 @@ export default function AdminLogin() {
           >
             Admin Login
           </h2>
-          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+
+          {/* Role info */}
+          <div
+            style={{
+              marginBottom: "1rem",
+              textAlign: "center",
+              fontSize: "0.95rem",
+              color: "#555",
+            }}
+          >
+            ⚠️ Only <strong>Admin</strong> can login here.
+          </div>
+
+          <form
+            onSubmit={handleLogin}
+            style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+          >
             <div>
               <label style={{ display: "block", marginBottom: "0.5rem" }}>Email</label>
               <input
