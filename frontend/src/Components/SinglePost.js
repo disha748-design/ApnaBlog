@@ -15,9 +15,6 @@ export default function SinglePost() {
   const [speaking, setSpeaking] = useState(false);
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [chatInput, setChatInput] = useState("");
-  const [chatLoading, setChatLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -25,11 +22,9 @@ export default function SinglePost() {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const loggedInUserId = user?.id;
-  const loggedInUsername = user?.username;
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -52,7 +47,6 @@ export default function SinglePost() {
       const res = await api.get(`/Posts/${id}`);
       setPost(res.data);
 
-      // Fetch comments
       const commentsRes = await api.get(`/posts/${id}/Comments`);
       setComments(commentsRes.data || []);
     } catch (err) {
@@ -95,9 +89,7 @@ export default function SinglePost() {
   const handleComment = async () => {
     if (!commentText.trim()) return;
     try {
-      const res = await api.post(`/posts/${id}/Comments`, {
-        content: commentText,
-      });
+      const res = await api.post(`/posts/${id}/Comments`, { content: commentText });
       setComments((prev) => [...prev, res.data]);
       setPost((prev) => ({
         ...prev,
@@ -146,8 +138,7 @@ export default function SinglePost() {
     if (!post?.content) return;
     if (!speaking) {
       const text =
-        new DOMParser().parseFromString(post.content, "text/html").body
-          .textContent || "";
+        new DOMParser().parseFromString(post.content, "text/html").body.textContent || "";
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.onend = () => setSpeaking(false);
       window.speechSynthesis.speak(utterance);
@@ -155,33 +146,6 @@ export default function SinglePost() {
     } else {
       window.speechSynthesis.cancel();
       setSpeaking(false);
-    }
-  };
-
-  const handleChatSubmit = async (e) => {
-    e.preventDefault();
-    if (!chatInput.trim()) return;
-    setChatMessages((prev) => [...prev, { role: "user", text: chatInput }]);
-    const message = chatInput;
-    setChatInput("");
-    setChatLoading(true);
-    try {
-      const res = await api.post("/Chat/ask", {
-        BlogContent: post.content,
-        Question: message,
-      });
-      setChatMessages((prev) => [
-        ...prev,
-        { role: "assistant", text: res.data.response },
-      ]);
-    } catch (err) {
-      console.error(err);
-      setChatMessages((prev) => [
-        ...prev,
-        { role: "assistant", text: "❌ Something went wrong." },
-      ]);
-    } finally {
-      setChatLoading(false);
     }
   };
 
@@ -194,14 +158,10 @@ export default function SinglePost() {
     <div className={`single-post-container ${isDarkMode ? "dark-mode" : ""}`}>
       {/* HEADER */}
       <header ref={dropdownRef}>
-        <div className="nav-brand" onClick={() => navigate("/home")}>
-          ApnaBlog
-        </div>
-
+        <div className="nav-brand" onClick={() => navigate("/home")}>ApnaBlog</div>
         <div className="settings-icon" onClick={() => setMenuOpen(!menuOpen)}>
           <FaCog />
         </div>
-
         {menuOpen && (
           <div className="settings-dropdown">
             <div className="dropdown-item" onClick={() => navigate("/profile")}>
@@ -220,48 +180,34 @@ export default function SinglePost() {
         <div className="post-left">
           <h1 className="post-title">{post.title}</h1>
           <p className="post-meta">
-            By <strong>{post.authorUsername}</strong> •{" "}
-            {new Date(post.createdAt).toLocaleDateString()}
+            By <strong>{post.authorUsername}</strong> • {new Date(post.createdAt).toLocaleDateString()}
           </p>
           <p className="post-views">{post.viewsCount || 0} views</p>
 
           {isAuthor && (
             <div className="author-buttons">
-              <button className="btn-primary" onClick={handleEdit}>
-                <FaEdit /> Edit
-              </button>
-              <button className="btn-danger" onClick={handleDelete}>
-                <FaTrash /> Delete
-              </button>
+              <button className="btn-primary" onClick={handleEdit}><FaEdit /> Edit</button>
+              <button className="btn-danger" onClick={handleDelete}><FaTrash /> Delete</button>
             </div>
           )}
 
-          {/* Render images correctly */}
-         {post.images?.map((img, idx) => (
-  <img
-    key={idx}
-    src={img.url.startsWith("http") ? img.url : `http://localhost:5096/${img.url}`}
-    alt={`Post ${idx}`}
-    className="post-image"
-  />
-))}
+          {post.images?.map((img, idx) => (
+            <img
+              key={idx}
+              src={img.url.startsWith("http") ? img.url : `http://localhost:5096/${img.url}`}
+              alt={`Post ${idx}`}
+              className="post-image"
+            />
+          ))}
 
-
-          <div
-            className="post-content"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content }} />
 
           <div className="post-stats">
             <span>{post.likesCount || 0} Likes</span>
             <span>{post.commentsCount || 0} Comments</span>
           </div>
 
-          <button
-            className="btn-primary"
-            onClick={handleLike}
-            disabled={likeLoading}
-          >
+          <button className="btn-primary" onClick={handleLike} disabled={likeLoading}>
             {likeLoading ? "Liking..." : "Like"}
           </button>
 
@@ -270,19 +216,10 @@ export default function SinglePost() {
             {comments.length === 0 && <p>No comments yet.</p>}
             {comments.map((c) => (
               <div key={c.id || Math.random()} className="comment">
-                <strong>
-                  {c.authorName ||
-                    c.authorUsername ||
-                    c.user?.username ||
-                    "Anonymous"}
-                </strong>
+                <strong>{c.authorName || c.authorUsername || c.user?.username || "Anonymous"}</strong>
                 : {c.content || ""}
                 <div className="comment-meta">
-                  <small>
-                    {c.createdAt
-                      ? new Date(c.createdAt).toLocaleString()
-                      : ""}
-                  </small>
+                  <small>{c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}</small>
                 </div>
               </div>
             ))}
@@ -292,20 +229,14 @@ export default function SinglePost() {
               placeholder="Write a comment..."
               className="comment-input"
             />
-            <button className="btn-primary" onClick={handleComment}>
-              Post Comment
-            </button>
+            <button className="btn-primary" onClick={handleComment}>Post Comment</button>
           </div>
         </div>
 
         <div className="post-right">
           <div className="side-box">
             <p>✨ Generate a quick summary!</p>
-            <button
-              className="btn-primary"
-              onClick={handleGenerateSummary}
-              disabled={summaryLoading}
-            >
+            <button className="btn-primary" onClick={handleGenerateSummary} disabled={summaryLoading}>
               {summaryLoading ? "Generating..." : "Generate Summary"}
             </button>
             {summary && <div className="summary-box">{summary}</div>}
@@ -316,28 +247,6 @@ export default function SinglePost() {
             <button className="btn-secondary" onClick={handleSpeak}>
               {speaking ? "Stop Reading" : "Read Aloud"}
             </button>
-          </div>
-
-          <div className="side-box">
-            <p>💬 Ask about this blog</p>
-            <div className="chat-box">
-              {chatMessages.map((msg, i) => (
-                <div key={i} className={`chat-msg ${msg.role}`}>
-                  <strong>{msg.role === "user" ? "You" : "Bot"}:</strong>{" "}
-                  {msg.text}
-                </div>
-              ))}
-            </div>
-            <form className="chat-input" onSubmit={handleChatSubmit}>
-              <input
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Ask..."
-              />
-              <button type="submit" className="btn-primary">
-                {chatLoading ? "..." : "Send"}
-              </button>
-            </form>
           </div>
         </div>
       </div>

@@ -13,7 +13,6 @@ export default function UserProfile() {
   const [preferences, setPreferences] = useState([]);
   const [profileImage, setProfileImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const [aiTips, setAiTips] = useState("Fetching AI insights...");
   const [stats, setStats] = useState({
     totalPosts: 0,
     mostViewed: { id: null, title: "N/A" },
@@ -24,6 +23,7 @@ export default function UserProfile() {
   const [successMsg, setSuccessMsg] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
+  // Fetch profile and stats
   const fetchProfile = async () => {
     try {
       const res = await api.get("/UserProfile/me");
@@ -51,19 +51,7 @@ export default function UserProfile() {
     fetchProfile();
   }, [navigate]);
 
-  useEffect(() => {
-    const fetchInsights = async () => {
-      try {
-        const res = await api.get("/BlogInsights/me");
-        setAiTips(res.data.tips);
-      } catch (err) {
-        console.error("Failed to fetch AI tips:", err);
-        setAiTips("Unable to fetch insights right now.");
-      }
-    };
-    fetchInsights();
-  }, []);
-
+  // Preference handlers
   const handlePreferenceChange = (i, value) => {
     const newPrefs = [...preferences];
     newPrefs[i] = value;
@@ -72,6 +60,7 @@ export default function UserProfile() {
   const addPreference = () => setPreferences([...preferences, ""]);
   const removePreference = (i) => setPreferences(preferences.filter((_, idx) => idx !== i));
 
+  // Profile image change
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
       setPreviewImage(URL.createObjectURL(e.target.files[0]));
@@ -79,6 +68,7 @@ export default function UserProfile() {
     }
   };
 
+  // Save profile
   const handleSave = async () => {
     try {
       setLoading(true);
@@ -103,6 +93,7 @@ export default function UserProfile() {
     }
   };
 
+  // Logout
   const handleLogout = async () => {
     try {
       await api.post("/Auth/logout");
@@ -197,24 +188,13 @@ export default function UserProfile() {
             {successMsg && <p className="success-msg">{successMsg}</p>}
           </div>
 
-          {/* Stats & Tips */}
-          <div className="stats-tips-container">
-            <div className="profile-card stats-card">
-              <h3 className="section-title">📊 My Blog Stats</h3>
-              <p>📝 Posts Created: {stats.totalPosts}</p>
-              <p>👀 Most Viewed: {stats.mostViewed.id ? <Link to={`/posts/${stats.mostViewed.id}`} className="post-link">{stats.mostViewed.title}</Link> : stats.mostViewed.title}</p>
-              <p>💬 Most Commented: {stats.mostCommented.id ? <Link to={`/posts/${stats.mostCommented.id}`} className="post-link">{stats.mostCommented.title}</Link> : stats.mostCommented.title}</p>
-              <p>👍 Most Liked: {stats.mostLiked.id ? <Link to={`/posts/${stats.mostLiked.id}`} className="post-link">{stats.mostLiked.title}</Link> : stats.mostLiked.title}</p>
-            </div>
-
-            <div className="profile-card tips-card">
-              <h3 className="section-title">💡 Personalised Blog Growth Tips</h3>
-              <ul className="tips-list">
-                {aiTips ? aiTips.split(/\n|(?<=\.)/).map(t => t.replace(/^\d+\.?\s*/, "").trim()).filter(t => t.length > 0).slice(0, 5).map((tip, i) => (
-                  <li key={i} className="tip-item">✨ {tip}</li>
-                )) : "Fetching tips..."}
-              </ul>
-            </div>
+          {/* Stats */}
+          <div className="profile-card stats-card">
+            <h3 className="section-title">📊 My Blog Stats</h3>
+            <p>📝 Posts Created: {stats.totalPosts}</p>
+            <p>👀 Most Viewed: {stats.mostViewed.id ? <Link to={`/posts/${stats.mostViewed.id}`} className="post-link">{stats.mostViewed.title}</Link> : stats.mostViewed.title}</p>
+            <p>💬 Most Commented: {stats.mostCommented.id ? <Link to={`/posts/${stats.mostCommented.id}`} className="post-link">{stats.mostCommented.title}</Link> : stats.mostCommented.title}</p>
+            <p>👍 Most Liked: {stats.mostLiked.id ? <Link to={`/posts/${stats.mostLiked.id}`} className="post-link">{stats.mostLiked.title}</Link> : stats.mostLiked.title}</p>
           </div>
         </div>
       </main>
