@@ -11,7 +11,7 @@ export default function EditPost() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const loggedInUser = user?.username || "Anonymous";
-
+  const backendBaseUrl = "http://localhost:5096"; // replace with your backend URL
   const [title, setTitle] = useState("");
   const [blocks, setBlocks] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +61,9 @@ export default function EditPost() {
         const imageBlocks = (data.images || []).map((img, idx) => ({
           blockType: "image",
           textContent: "",
-          imageUrlOrBase64: img.url,
+          imageUrlOrBase64: img.url.startsWith("http")
+            ? img.url
+            : `${backendBaseUrl}/${img.url}`, // prepend base URL
           displayOrder: textBlocks.length + idx,
         }));
 
@@ -116,50 +118,49 @@ export default function EditPost() {
   };
 
   const handleSubmit = async () => {
-    if (!title.trim()) {
-      alert("Title cannot be empty!");
-      return;
-    }
+  if (!title.trim()) return alert("Title cannot be empty!");
+  setIsSubmitting(true);
 
-    setIsSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append("title", title);
-      formData.append(
-        "content",
-        blocks
-          .filter((b) => b.blockType === "text")
-          .map((b) => b.textContent)
-          .join("\n\n")
-      );
+  try {
+    const formData = new FormData();
+    formData.append("title", title);
 
-      blocks
-        .filter((b) => b.blockType === "image" && b.imageUrlOrBase64.includes("base64"))
-        .forEach((b, idx) => {
-          const arr = b.imageUrlOrBase64.split(",");
-          const mime = arr[0].match(/:(.*?);/)[1];
-          const bstr = atob(arr[1]);
-          let n = bstr.length;
-          const u8arr = new Uint8Array(n);
-          while (n--) u8arr[n] = bstr.charCodeAt(n);
-          const file = new Blob([u8arr], { type: mime });
-          formData.append("images", file, `image${idx}.png`);
-        });
+    // Only text content
+    const content = blocks
+      .filter((b) => b.blockType === "text")
+      .map((b) => b.textContent)
+      .join("\n\n");
+    formData.append("content", content);
 
-      await api.put(`/Posts/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
+    // Only new images (base64)
+    blocks
+      .filter((b) => b.blockType === "image" && b.imageUrlOrBase64.startsWith("data:"))
+      .forEach((b, idx) => {
+        const arr = b.imageUrlOrBase64.split(",");
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        const n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+        const file = new Blob([u8arr], { type: mime });
+        formData.append("images", file, `image${idx}.png`);
       });
 
-      alert("Post updated successfully! It will be published after editor approval.");
-      navigate("/home");
-    } catch (err) {
-      console.error("Error updating post:", err);
-      alert("Failed to update post. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    await api.put(`/Posts/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+
+    alert("Post updated successfully!Sent for Editor Approval.");
+    navigate("/home");
+  } catch (err) {
+    console.error("Error updating post:", err.response?.data || err);
+    alert("Failed to update post.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>

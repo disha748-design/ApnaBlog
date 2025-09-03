@@ -47,21 +47,20 @@ export default function SinglePost() {
   }, [id]);
 
   const fetchPost = async () => {
-  setLoading(true);
-  try {
-    // Get the post first
-    const res = await api.get(`/Posts/${id}`);
-    setPost(res.data);
+    setLoading(true);
+    try {
+      const res = await api.get(`/Posts/${id}`);
+      setPost(res.data);
 
-    // Then fetch comments separately
-    const commentsRes = await api.get(`/posts/${id}/Comments`);
-    setComments(commentsRes.data || []);
-  } catch (err) {
-    console.error("Error fetching post or comments:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+      // Fetch comments
+      const commentsRes = await api.get(`/posts/${id}/Comments`);
+      setComments(commentsRes.data || []);
+    } catch (err) {
+      console.error("Error fetching post or comments:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const incrementViews = async () => {
     try {
@@ -237,14 +236,16 @@ export default function SinglePost() {
             </div>
           )}
 
-          {post.imageUrls?.map((url, idx) => (
-            <img
-              key={idx}
-              src={url}
-              alt={`Post ${idx}`}
-              className="post-image"
-            />
-          ))}
+          {/* Render images correctly */}
+         {post.images?.map((img, idx) => (
+  <img
+    key={idx}
+    src={img.url.startsWith("http") ? img.url : `http://localhost:5096/${img.url}`}
+    alt={`Post ${idx}`}
+    className="post-image"
+  />
+))}
+
 
           <div
             className="post-content"
