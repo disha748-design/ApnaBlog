@@ -5,10 +5,11 @@
     "\\Data",
     "\\DTOs",
     "\\DTOs\\Auth",
+    "\\DTOs\\Comments",
     "\\Models",
     "\\Services",
     "\\Services\\Impl"
   ],
-  "SelectedNode": "\\Program.cs",
+  "SelectedNode": "\\Controllers\\CommentsController.cs",
   "PreviewInSolutionExplorer": false
 }

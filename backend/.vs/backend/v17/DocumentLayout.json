@@ -3,6 +3,22 @@
   "WorkspaceRootPath": "C:\\Users\\disha\\ApnaBlog\\backend\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\CommentsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\CommentsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\Services\\CohereServices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Services\\CohereServices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\DTOs\\Comments\\CommentSuggestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:DTOs\\Comments\\CommentSuggestDto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\Services\\IPostService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Services\\IPostService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -23,16 +39,8 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\BlogInsightsController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\Services\\CohereServices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Services\\CohereServices.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\Services\\Impl\\PostService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Services\\Impl\\PostService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\Services\\IPostService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Services\\IPostService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\TitleController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -98,50 +106,37 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ImageSuggestionsController.cs",
-              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\ImageSuggestionsController.cs",
-              "RelativeDocumentMoniker": "Controllers\\ImageSuggestionsController.cs",
-              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\ImageSuggestionsController.cs",
-              "RelativeToolTip": "Controllers\\ImageSuggestionsController.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAuwCcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-03T16:41:45.101Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "TitleController.cs",
-              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\TitleController.cs",
-              "RelativeDocumentMoniker": "Controllers\\TitleController.cs",
-              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\TitleController.cs",
-              "RelativeToolTip": "Controllers\\TitleController.cs",
-              "ViewState": "AgIAADUAAAAAAAAAAAAuwFAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T16:05:58.822Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\appsettings.json",
-              "RelativeDocumentMoniker": "appsettings.json",
-              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\appsettings.json",
-              "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAALAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-09-02T13:45:32.703Z",
+              "Title": "CommentSuggestDto.cs",
+              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\DTOs\\Comments\\CommentSuggestDto.cs",
+              "RelativeDocumentMoniker": "DTOs\\Comments\\CommentSuggestDto.cs",
+              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\DTOs\\Comments\\CommentSuggestDto.cs",
+              "RelativeToolTip": "DTOs\\Comments\\CommentSuggestDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-03T18:31:41.587Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "CommentsController.cs",
+              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\CommentsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CommentsController.cs",
+              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\CommentsController.cs",
+              "RelativeToolTip": "Controllers\\CommentsController.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAuwDoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-03T18:21:46.297Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "PostController.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\PostController.cs",
               "RelativeDocumentMoniker": "Controllers\\PostController.cs",
@@ -149,12 +144,11 @@
               "RelativeToolTip": "Controllers\\PostController.cs",
               "ViewState": "AgIAAMIAAAAAAAAAAAAAANgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T15:48:25.053Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T15:48:25.053Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 3,
               "Title": "IPostService.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Services\\IPostService.cs",
               "RelativeDocumentMoniker": "Services\\IPostService.cs",
@@ -167,7 +161,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "PostService.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Services\\Impl\\PostService.cs",
               "RelativeDocumentMoniker": "Services\\Impl\\PostService.cs",
@@ -175,12 +169,11 @@
               "RelativeToolTip": "Services\\Impl\\PostService.cs",
               "ViewState": "AgIAAD8BAAAAAAAAAAAuwFoBAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T15:43:59.733Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T15:43:59.733Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 8,
               "Title": "BlogInsightsController.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\BlogInsightsController.cs",
               "RelativeDocumentMoniker": "Controllers\\BlogInsightsController.cs",
@@ -188,38 +181,73 @@
               "RelativeToolTip": "Controllers\\BlogInsightsController.cs",
               "ViewState": "AgIAABsAAAAAAAAAAAAuwDYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T16:08:03.816Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T16:08:03.816Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Program.cs",
-              "RelativeDocumentMoniker": "Program.cs",
-              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\Program.cs",
-              "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAApAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T16:19:01.815Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 1,
               "Title": "CohereServices.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Services\\CohereServices.cs",
               "RelativeDocumentMoniker": "Services\\CohereServices.cs",
               "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\Services\\CohereServices.cs",
               "RelativeToolTip": "Services\\CohereServices.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAAFUAAAAAAAAAAAAuwHAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-02T16:04:49.967Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 6,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\appsettings.json",
+              "RelativeDocumentMoniker": "appsettings.json",
+              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\appsettings.json",
+              "RelativeToolTip": "appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-02T13:45:32.703Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "TitleController.cs",
+              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\TitleController.cs",
+              "RelativeDocumentMoniker": "Controllers\\TitleController.cs",
+              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\TitleController.cs",
+              "RelativeToolTip": "Controllers\\TitleController.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAuwFAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-02T16:05:58.822Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-02T16:19:01.815Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "ImageSuggestionsController.cs",
+              "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\ImageSuggestionsController.cs",
+              "RelativeDocumentMoniker": "Controllers\\ImageSuggestionsController.cs",
+              "ToolTip": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\ImageSuggestionsController.cs",
+              "RelativeToolTip": "Controllers\\ImageSuggestionsController.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAuwCcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-03T16:41:45.101Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "ApplicationUser.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Models\\ApplicationUser.cs",
               "RelativeDocumentMoniker": "Models\\ApplicationUser.cs",
@@ -227,12 +255,11 @@
               "RelativeToolTip": "Models\\ApplicationUser.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T11:32:01.093Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T11:32:01.093Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 12,
               "Title": "UserProfile.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Models\\UserProfile.cs",
               "RelativeDocumentMoniker": "Models\\UserProfile.cs",
@@ -240,12 +267,11 @@
               "RelativeToolTip": "Models\\UserProfile.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T12:13:53.913Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T12:13:53.913Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "RegisterDto.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\DTOs\\Auth\\RegisterDto.cs",
               "RelativeDocumentMoniker": "DTOs\\Auth\\RegisterDto.cs",
@@ -253,12 +279,11 @@
               "RelativeToolTip": "DTOs\\Auth\\RegisterDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T11:34:46.954Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T11:34:46.954Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "Post.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Models\\Post.cs",
               "RelativeDocumentMoniker": "Models\\Post.cs",
@@ -266,12 +291,11 @@
               "RelativeToolTip": "Models\\Post.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-03T10:00:00.967Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-03T10:00:00.967Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "AuthController.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "Controllers\\AuthController.cs",
@@ -279,12 +303,11 @@
               "RelativeToolTip": "Controllers\\AuthController.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-03T09:59:28.41Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-03T09:59:28.41Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "LoginDto.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\DTOs\\Auth\\LoginDto.cs",
               "RelativeDocumentMoniker": "DTOs\\Auth\\LoginDto.cs",
@@ -292,12 +315,11 @@
               "RelativeToolTip": "DTOs\\Auth\\LoginDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-03T09:59:15.779Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-03T09:59:15.779Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "UserStats.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Models\\UserStats.cs",
               "RelativeDocumentMoniker": "Models\\UserStats.cs",
@@ -305,12 +327,11 @@
               "RelativeToolTip": "Models\\UserStats.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T17:16:20.597Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T17:16:20.597Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "TitleController,cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\TitleController,cs",
               "RelativeDocumentMoniker": "Controllers\\TitleController,cs",
@@ -318,12 +339,11 @@
               "RelativeToolTip": "Controllers\\TitleController,cs",
               "ViewState": "AgIAADEAAAAAAAAAAAAkwE0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-09-02T16:46:32.575Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T16:46:32.575Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "AuthService.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Services\\Impl\\AuthService.cs",
               "RelativeDocumentMoniker": "Services\\Impl\\AuthService.cs",
@@ -335,7 +355,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 20,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Data\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "Data\\ApplicationDbContext.cs",
@@ -347,7 +367,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 21,
               "Title": "AdminService.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Services\\Impl\\AdminService.cs",
               "RelativeDocumentMoniker": "Services\\Impl\\AdminService.cs",
@@ -359,7 +379,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 23,
               "Title": "IAdminService.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Services\\IAdminService.cs",
               "RelativeDocumentMoniker": "Services\\IAdminService.cs",
@@ -371,7 +391,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 22,
               "Title": "AdminController.cs",
               "DocumentMoniker": "C:\\Users\\disha\\ApnaBlog\\backend\\Controllers\\AdminController.cs",
               "RelativeDocumentMoniker": "Controllers\\AdminController.cs",
