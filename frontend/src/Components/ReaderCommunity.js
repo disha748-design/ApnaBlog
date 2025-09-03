@@ -1,75 +1,64 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
-import { FaSearch, FaBars, FaTimes, FaUser } from "react-icons/fa";
-import { AuthContext } from "../AuthContext"; // ✅ same AuthContext as homepage
+import { FaSearch, FaBars, FaTimes } from "react-icons/fa";
 
-function SearchBar({ onSearch, isMobile, toggleMobileSearch }) {
-  const [query, setQuery] = useState("");
-
-  const handleChange = (e) => {
-    setQuery(e.target.value);
-    onSearch(e.target.value);
-  };
-
-  if (isMobile) {
-    return (
-      <div style={{ position: "relative" }}>
-        <button
-          onClick={toggleMobileSearch}
-          style={{ background: "none", border: "none", color: "#fff", fontSize: "1.3rem" }}
-        >
-          <FaSearch />
-        </button>
-      </div>
+// ✅ TextGears API helper for difficulty only
+const getDifficulty = async (text) => {
+  try {
+    const apiKey = "FgJ3Cb5xOamuxYwu"; // Your API key
+    const res = await fetch(
+      `https://api.textgears.com/readability?text=${encodeURIComponent(
+        text
+      )}&key=${apiKey}`
     );
-  }
+    const data = await res.json();
 
-  return (
-    <input
-      type="text"
-      value={query}
-      onChange={handleChange}
-      placeholder="Search posts..."
-      style={{
-        width: "250px",
-        padding: "0.4rem 0.8rem",
-        borderRadius: "20px",
-        border: "1px solid #ccc",
-        fontSize: "0.95rem",
-        transition: "width 0.3s",
-      }}
-    />
-  );
-}
+    if (data.status && data.response?.stats) {
+      return data.response.stats.fleschKincaid.interpretation || "Unknown";
+    }
+    return "Unknown";
+  } catch (err) {
+    console.error("TextGears error:", err);
+    return "Unknown";
+  }
+};
 
 export default function ReaderCommunity() {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(AuthContext);
-
   const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const themeColors = {
+    mainBg: "linear-gradient(135deg, #F4F4F9, #E8FFD7)", // match homepage
+    headerFooterBg: "#043d1eff", // match homepage
+    buttonPrimary: "#1d7c05ff", // green button
+    buttonText: "#fff",
+    textDark: "#2E2E2E",
+  };
 
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (pageNum = 1) => {
     try {
       setLoading(true);
-      const res = await api.get("/Posts/published", { params: { page: 1, pageSize: 6 } });
-      setPosts(res.data);
-      setFilteredPosts(res.data);
+      const res = await api.get("/Posts/published", {
+        params: { page: pageNum, pageSize: 5 },
+      });
+
+      // Get difficulty for each post
+      const postsWithDifficulty = await Promise.all(
+        res.data.map(async (post) => {
+          const difficulty = await getDifficulty(post.content || post.title);
+          return { ...post, difficulty };
+        })
+      );
+
+      setPosts(postsWithDifficulty);
     } catch (err) {
       console.error("Error fetching posts:", err);
     } finally {
@@ -77,79 +66,223 @@ export default function ReaderCommunity() {
     }
   };
 
-  const handleSearch = (query) => {
-    if (!query) setFilteredPosts(posts);
-    else setFilteredPosts(posts.filter((p) => p.title.toLowerCase().includes(query.toLowerCase())));
-  };
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (loading) return <div style={{ padding: "2rem" }}>Loading posts...</div>;
 
   return (
-    <div style={{ fontFamily: "Georgia, serif", minHeight: "100vh", display: "flex", flexDirection: "column", background: "linear-gradient(135deg, #F4F4F9, #E8FFD7)" }}>
-      
-      {/* HEADER - same as homepage */}
-      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem 1rem", backgroundColor: "#043d1eff", color: "#fff", position: "relative", zIndex: 10 }}>
-        <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }} onClick={() => navigate("/")}>
-          ApnaBlog
+    <div
+      style={{
+        fontFamily: "Georgia, serif",
+        background: themeColors.mainBg,
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* Inline CSS */}
+      <style>{`
+        .navbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.5rem 1rem;
+          background-color: #043d1eff;
+          color: white;
+          box-sizing: border-box;
+          position: relative;
+          height: 60px;
+        }
+        .logo {
+          font-weight: bold;
+          font-size: 1.5rem;
+          cursor: pointer;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+        .search-bar {
+          flex: 1;
+          max-width: 400px;
+          display: flex;
+          align-items: center;
+          background: white;
+          border-radius: 20px;
+          padding: 0.3rem 0.8rem;
+          margin: 0 1rem;
+        }
+        .search-bar input {
+          border: none;
+          outline: none;
+          flex: 1;
+          padding: 0.3rem 0.5rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+        }
+        .desktop-nav {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+        .desktop-nav button {
+          background: ${themeColors.buttonPrimary};
+          color: white;
+          border: none;
+          padding: 0.5rem 1.2rem;
+          border-radius: 20px;
+          cursor: pointer;
+        }
+        .hamburger {
+          display: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          margin-left: auto;
+          line-height: 1;
+        }
+        .mobile-menu {
+          display: none;
+          flex-direction: column;
+          background: ${themeColors.headerFooterBg};
+          position: absolute;
+          top: 100%;
+          right: 0;
+          width: 220px;
+          padding: 1rem;
+          gap: 1rem;
+          border-radius: 0 0 10px 10px;
+        }
+        @media (max-width: 768px) {
+          .search-bar { display: none; }
+          .desktop-nav { display: none; }
+          .hamburger { display: block; }
+        }
+      `}</style>
+
+      {/* HEADER */}
+      <header className="navbar">
+        <div className="logo" onClick={() => navigate("/home")}>ApnaBlog</div>
+
+        <div className="search-bar">
+          <FaSearch color="#555" />
+          <input
+            type="text"
+            placeholder="Search posts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
 
-        <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          {!isMobile && <SearchBar onSearch={handleSearch} />}
-          {isMobile && mobileSearchOpen && <SearchBar onSearch={handleSearch} />}
+        <div className="desktop-nav">
+          <button onClick={() => navigate("/create-post")}>Write</button>
+          <div
+            style={{ fontSize: "1.5rem", cursor: "pointer" }}
+            onClick={() => navigate("/profile")}
+          >
+            <i className="fa-solid fa-circle-user"></i>
+          </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", position: "relative" }}>
-          {!isMobile && user && (
+        <div className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? <FaTimes /> : <FaBars />}
+        </div>
+
+        {menuOpen && (
+          <div className="mobile-menu">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                padding: "0.5rem",
+                borderRadius: "8px",
+                border: "none",
+              }}
+            />
             <button
-              onClick={() => navigate("/create-post")}
-              style={{ backgroundColor: "#1d7c05ff", color: "#fff", padding: "0.5rem 1rem", borderRadius: "15px", border: "none", cursor: "pointer" }}
+              onClick={() => {
+                navigate("/create-post");
+                setMenuOpen(false);
+              }}
             >
               Write
             </button>
-          )}
-
-          {isMobile && (
-            <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", color: "#fff", fontSize: "1.5rem" }}>
-              {menuOpen ? <FaTimes /> : <FaBars />}
-            </button>
-          )}
-
-          {menuOpen && (
-            <div style={{ position: "absolute", top: "50px", right: 0, backgroundColor: "#fff", color: "#1C1C1C", borderRadius: "12px", boxShadow: "0 8px 16px rgba(0,0,0,0.2)", overflow: "hidden", zIndex: 1000, minWidth: "180px", fontSize: "0.95rem" }}>
-              <div style={{ padding: "0.7rem 1rem", cursor: "pointer", borderBottom: "1px solid #ccc" }} onClick={() => { if (!user) navigate("/login"); else navigate("/profile"); setMenuOpen(false); }}>
-                <FaUser /> Profile
-              </div>
-              {isMobile && (
-                <div style={{ padding: "0.7rem 1rem", cursor: "pointer", borderBottom: "1px solid #ccc" }} onClick={() => setMobileSearchOpen(!mobileSearchOpen)}>
-                  <FaSearch /> Search
-                </div>
-              )}
-              {user && (
-                <div style={{ padding: "0.7rem 1rem", cursor: "pointer" }} onClick={() => { setUser(null); navigate("/login"); setMenuOpen(false); }}>
-                  Logout
-                </div>
-              )}
+            <div
+              style={{
+                fontSize: "1.5rem",
+                textAlign: "center",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                navigate("/profile");
+                setMenuOpen(false);
+              }}
+            >
+              <i className="fa-solid fa-circle-user"></i>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </header>
 
-      {/* MAIN */}
-      <main style={{ flex: 1, padding: "2rem", maxWidth: "900px", margin: "0 auto" }}>
-        <h2 style={{ marginBottom: "1.5rem", color: "#2E2E2E" }}>Explore Stories</h2>
+      {/* MAIN CONTENT */}
+      <main
+        style={{
+          flex: 1,
+          padding: "2rem",
+          maxWidth: "900px",
+          margin: "0 auto",
+          width: "100%",
+        }}
+      >
+        <h2 style={{ marginBottom: "1.5rem", color: themeColors.textDark }}>
+          Explore Stories
+        </h2>
 
-        {loading ? (
-          <p>Loading posts…</p>
-        ) : filteredPosts.length === 0 ? (
+        {filteredPosts.length === 0 ? (
           <p>No posts found.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {filteredPosts.map((post) => (
-              <div key={post.id} style={{ padding: "1rem", borderRadius: "10px", backgroundColor: "#fff", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.1)", transition: "transform 0.2s" }}
+              <div
+                key={post.id}
+                style={{
+                  padding: "1rem",
+                  borderRadius: "10px",
+                  backgroundColor: "#fff",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  transition: "transform 0.2s",
+                }}
                 onClick={() => navigate(`/post/${post.id}`)}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.transform = "scale(1.02)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.transform = "scale(1)")
+                }
               >
-                <h3 style={{ margin: 0, color: "#2E2E2E" }}>{post.title}</h3>
-                <p style={{ fontSize: "0.9rem", color: "#555", marginTop: "0.3rem" }}>by {post.authorUsername}</p>
+                <h3 style={{ margin: 0, color: themeColors.textDark }}>
+                  {post.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "0.9rem",
+                    color: "#555",
+                    marginTop: "0.3rem",
+                  }}
+                >
+                  by {post.authorUsername}
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.85rem",
+                    color: "#777",
+                    marginTop: "0.3rem",
+                  }}
+                >
+                  Difficulty: {post.difficulty}
+                </p>
               </div>
             ))}
           </div>
@@ -157,8 +290,19 @@ export default function ReaderCommunity() {
       </main>
 
       {/* FOOTER */}
-      <footer style={{ padding: "1rem 2rem", backgroundColor: "#043d1eff", color: "#fff", textAlign: "center", marginTop: "auto" }}>
-        © 2025 ApnaBlog
+      <footer
+        style={{
+          padding: "1rem 2rem",
+          fontSize: "0.85rem",
+          color: "#fff",
+          backgroundColor: themeColors.headerFooterBg,
+          display: "flex",
+          justifyContent: "center",
+          gap: "2rem",
+          flexWrap: "wrap",
+        }}
+      >
+        <span>© 2025 ApnaBlog</span>
       </footer>
     </div>
   );
