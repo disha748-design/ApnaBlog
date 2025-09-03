@@ -12,7 +12,9 @@ export default function CreatePost() {
   const loggedInUser = user?.username || "Anonymous";
 
   const [title, setTitle] = useState("");
-  const [blocks, setBlocks] = useState([{ blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: 0 }]);
+  const [blocks, setBlocks] = useState([
+    { blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: 0 },
+  ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [imageSuggestions, setImageSuggestions] = useState([]);
@@ -49,7 +51,10 @@ export default function CreatePost() {
   };
 
   const handleAddBlock = () => {
-    setBlocks([...blocks, { blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: blocks.length }]);
+    setBlocks([
+      ...blocks,
+      { blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: blocks.length },
+    ]);
   };
 
   const handleAddImage = (e, index) => {
@@ -67,70 +72,61 @@ export default function CreatePost() {
   };
 
   const handleAddSuggestedImage = (url) => {
-  setBlocks([
-    ...blocks,
-    { blockType: "image", imageUrlOrBase64: url, isUnsplash: true, textContent: "", displayOrder: blocks.length }
-  ]);
-};
-
+    setBlocks([
+      ...blocks,
+      { blockType: "image", imageUrlOrBase64: url, isUnsplash: true, textContent: "", displayOrder: blocks.length },
+    ]);
+  };
 
   const handleSubmit = async () => {
-  if (!title.trim()) {
-    alert("Title cannot be empty!");
-    return;
-  }
-  setIsSubmitting(true);
+    if (!title.trim()) {
+      alert("Title cannot be empty!");
+      return;
+    }
+    setIsSubmitting(true);
 
-  try {
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append(
-      "content",
-      blocks.filter((b) => b.blockType === "text").map((b) => b.textContent).join("\n\n")
-    );
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append(
+        "content",
+        blocks.filter((b) => b.blockType === "text").map((b) => b.textContent).join("\n\n")
+      );
 
-    for (let idx = 0; idx < blocks.length; idx++) {
-      const b = blocks[idx];
-
-      if (b.blockType === "image" && b.imageUrlOrBase64) {
-        if (b.imageUrlOrBase64.startsWith("data:")) {
-          // ✅ Uploaded file as base64
-          const arr = b.imageUrlOrBase64.split(",");
-          const mime = arr[0].match(/:(.*?);/)[1];
-          const bstr = atob(arr[1]);
-          let n = bstr.length;
-          const u8arr = new Uint8Array(n);
-          while (n--) u8arr[n] = bstr.charCodeAt(n);
-          const file = new Blob([u8arr], { type: mime });
-          formData.append("images", file, `image${idx}.png`);
-        } 
-        else if (b.isUnsplash) {
-          // ✅ Fetch Unsplash image and append as file
-          const response = await fetch(b.imageUrlOrBase64);
-          const blob = await response.blob();
-          formData.append("images", blob, `unsplash${idx}.jpg`);
-        } 
-        else {
-          // fallback: if it's just a URL
-          formData.append("imageUrls", b.imageUrlOrBase64);
+      for (let idx = 0; idx < blocks.length; idx++) {
+        const b = blocks[idx];
+        if (b.blockType === "image" && b.imageUrlOrBase64) {
+          if (b.imageUrlOrBase64.startsWith("data:")) {
+            const arr = b.imageUrlOrBase64.split(",");
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
+            const file = new Blob([u8arr], { type: mime });
+            formData.append("images", file, `image${idx}.png`);
+          } else if (b.isUnsplash) {
+            const response = await fetch(b.imageUrlOrBase64);
+            const blob = await response.blob();
+            formData.append("images", blob, `unsplash${idx}.jpg`);
+          } else {
+            formData.append("imageUrls", b.imageUrlOrBase64);
+          }
         }
       }
+
+      await api.post("/Posts", formData, { headers: { "Content-Type": "multipart/form-data" }, withCredentials: true });
+      alert("Post submitted successfully! It will be published after editor approval.");
+      setTitle("");
+      setBlocks([{ blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: 0 }]);
+      navigate("/home");
+    } catch (err) {
+      console.error("Error creating post:", err);
+      alert("Error submitting post. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    await api.post("/Posts", formData, { headers: { "Content-Type": "multipart/form-data" }, withCredentials: true });
-    alert("Post submitted successfully! It will be published after editor approval.");
-
-    setTitle("");
-    setBlocks([{ blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: 0 }]);
-    navigate("/home");
-  } catch (err) {
-    console.error("Error creating post:", err);
-    alert("Error submitting post. Please try again.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
+  };
 
   const generateTitle = async () => {
     try {
@@ -169,12 +165,10 @@ export default function CreatePost() {
       {/* Header */}
       <header style={{ padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: themeColors.headerFooterBg, color: "#fff", position: "relative" }}>
         <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }} onClick={() => navigate("/home")}>ApnaBlog</div>
-
         <div className="desktop-nav" style={{ display: "flex", gap: "1.8rem", fontSize: "0.9rem" }}>
           <button style={navBtnStyle} onClick={() => navigate("/home")}><FaHome style={{ marginRight: "6px" }} /> Home</button>
           <button style={navBtnStyle} onClick={() => navigate("/profile")}><FaUser style={{ marginRight: "6px" }} /> Profile</button>
         </div>
-
         <div className="hamburger" style={{ fontSize: "1.5rem", cursor: "pointer", display: "none", color: "#fff" }} onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? <FaTimes /> : <FaBars />}
         </div>
@@ -208,17 +202,24 @@ export default function CreatePost() {
             </div>
           ))}
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+          {/* Buttons Row */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", justifyContent: "space-between" }}>
             <button onClick={handleAddBlock} style={{ flex: 1, padding: "12px", borderRadius: "8px", backgroundColor: themeColors.buttonPrimary, color: themeColors.buttonText, fontWeight: "bold", cursor: "pointer" }}>+ Add Block</button>
-            <button onClick={handleSubmit} disabled={isSubmitting} style={{ flex: 1, padding: "12px", borderRadius: "8px", backgroundColor: themeColors.buttonPrimary, color: themeColors.buttonText, fontWeight: "bold", cursor: "pointer" }}>{isSubmitting ? "Publishing..." : "Publish Post"}</button>
+            <button onClick={fetchImageSuggestions} disabled={loadingImages} style={{ flex: 1, padding: "12px", borderRadius: "8px", backgroundColor: "#3E5F44", color: "#fff", fontWeight: "bold", cursor: "pointer" }}>
+              {loadingImages ? "Fetching Images..." : "AI Image Suggestions"}
+            </button>
           </div>
 
-          {/* AI Image Suggestions */}
-          <div style={{ marginTop: "1rem" }}>
-            <button onClick={fetchImageSuggestions} disabled={loadingImages} style={{ backgroundColor: "#5E936C", color: "#fff", padding: "10px 16px", borderRadius: "8px", cursor: "pointer", fontWeight: "500" }}>
-              {loadingImages ? "Fetching Images..." : "Fetch AI Image Suggestions"}
+          {/* Publish Button Centered */}
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
+            <button onClick={handleSubmit} disabled={isSubmitting} style={{ padding: "12px 24px", borderRadius: "8px", backgroundColor: themeColors.buttonPrimary, color: themeColors.buttonText, fontWeight: "bold", cursor: "pointer", minWidth: "200px" }}>
+              {isSubmitting ? "Publishing..." : "Publish Post"}
             </button>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "1rem" }}>
+          </div>
+
+          {/* AI Image Suggestions Display */}
+          <div style={{ marginTop: "1rem" }}>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "1rem", justifyContent: "center" }}>
               {imageSuggestions.map((img) => (
                 <img
                   key={img.id}
