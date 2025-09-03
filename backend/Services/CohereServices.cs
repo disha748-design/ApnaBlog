@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -8,96 +10,95 @@ namespace BlogApi.Services
 {
     public class CohereServices
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _apiKey;
 
-        public CohereServices(IHttpClientFactory httpClientFactory, IConfiguration config)
+        public CohereServices(
+            IHttpClientFactory httpClientFactory,
+            IHttpContextAccessor httpContextAccessor,
+            IConfiguration config)
         {
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClientFactory = httpClientFactory;
+            _httpContextAccessor = httpContextAccessor;
             _apiKey = config["Cohere:ApiKey"];
         }
 
-        // Generate a catchy blog title using Chat API
-        public async Task<string> GenerateTitleAsync(string content)
+        public async Task<string> ChatWithBlogAsync(
+    string blogContent,
+    string userQuestion,
+    string userStatsUrl = "http://localhost:5096/api/UserStats/me")
         {
-            if (string.IsNullOrWhiteSpace(content))
-                return "❌ Content is empty";
+            if (string.IsNullOrWhiteSpace(blogContent))
+                blogContent = "This blog contains placeholder content for testing.";
 
-            var payload = new
-            {
-                model = "command-r", // recommended working model
-                messages = new[]
-                {
-                    new { role = "user", content = $"Write a short, catchy blog title for this content. Return only the title:\n\n{content}" }
-                }
-            };
-
-            var json = JsonSerializer.Serialize(payload);
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.cohere.ai/v1/chat")
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
-            request.Headers.Add("Authorization", $"Bearer {_apiKey}");
-
-            var response = await _httpClient.SendAsync(request);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var err = await response.Content.ReadAsStringAsync();
-                throw new System.Exception($"Cohere API error: {response.StatusCode}, {err}");
-            }
-
-            var result = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(result);
-
-            if (doc.RootElement.TryGetProperty("generations", out var gens) && gens.GetArrayLength() > 0)
-            {
-                var text = gens[0].GetProperty("text").GetString()?.Trim();
-                return text ?? "❌ AI did not return a valid title";
-            }
-
-            return "❌ AI did not return a valid title";
-        }
-
-        // Optional: chat about blog content
-        public async Task<string> ChatWithBlogAsync(string blogContent, string userQuestion)
-        {
             if (string.IsNullOrWhiteSpace(userQuestion))
-                return "❌ Please ask a valid question.";
+                return "❌ Question cannot be empty.";
+
+            blogContent = blogContent.Trim();
+            userQuestion = userQuestion.Trim();
+
+            // --- Fetch user stats using cookie auth ---
+            var client = _httpClientFactory.CreateClient();
+
+            var cookies = _httpContextAccessor.HttpContext?.Request.Cookies;
+            if (cookies != null)
+            {
+                var cookieHeader = string.Join("; ", cookies.Select(c => $"{c.Key}={c.Value}"));
+                if (!string.IsNullOrEmpty(cookieHeader))
+                    client.DefaultRequestHeaders.Add("Cookie", cookieHeader);
+            }
+
+            var statsResponse = await client.GetAsync(userStatsUrl);
+            if (!statsResponse.IsSuccessStatusCode)
+                return $"Failed to fetch user stats: {statsResponse.StatusCode}";
+
+            var statsJson = await statsResponse.Content.ReadAsStringAsync();
+
+            // --- Build prompt ---
+            var prompt = $@"
+You are an AI assistant analyzing a user's blog stats.
+User Stats: {statsJson}
+Blog Content: {blogContent}
+Question: {userQuestion}
+Provide 2-3 actionable tips to improve engagement.
+";
+
+            // --- Call Cohere Chat API ---
+            var cohereClient = _httpClientFactory.CreateClient();
+            cohereClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
 
             var payload = new
             {
-                model = "command-r",
+                model = "command-r7b-12-2024",
                 messages = new[]
                 {
-                    new { role = "user", content = $"Here is a blog:\n{blogContent}\nQuestion: {userQuestion}" }
-                }
+            new { role = "user", content = prompt }
+        }
             };
 
-            var json = JsonSerializer.Serialize(payload);
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.cohere.ai/v1/chat")
-            {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
-            request.Headers.Add("Authorization", $"Bearer {_apiKey}");
+            var requestContent = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+            var cohereResponse = await cohereClient.PostAsync("https://api.cohere.ai/v1/chat", requestContent);
 
-            var response = await _httpClient.SendAsync(request);
-
-            if (!response.IsSuccessStatusCode)
+            if (!cohereResponse.IsSuccessStatusCode)
             {
-                var err = await response.Content.ReadAsStringAsync();
-                return $"Cohere API error: {response.StatusCode}, {err}";
+                var err = await cohereResponse.Content.ReadAsStringAsync();
+                return $"Cohere API error: {cohereResponse.StatusCode}, {err}";
             }
 
-            var result = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(result);
+            var result = await cohereResponse.Content.ReadAsStringAsync();
 
-            if (doc.RootElement.TryGetProperty("generations", out var gens) && gens.GetArrayLength() > 0)
+            using var doc = JsonDocument.Parse(result);
+            if (doc.RootElement.TryGetProperty("message", out var messageElem)
+                && messageElem.TryGetProperty("content", out var contentArray)
+                && contentArray.GetArrayLength() > 0
+                && contentArray[0].TryGetProperty("text", out var textProp))
             {
-                return gens[0].GetProperty("text").GetString()?.Trim() ?? "❌ AI did not return a response";
+                return textProp.GetString()?.Trim() ?? "❌ AI did not return a response";
             }
 
             return "❌ AI did not return a response";
         }
+
     }
 }

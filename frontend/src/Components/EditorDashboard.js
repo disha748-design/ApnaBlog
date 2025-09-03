@@ -71,6 +71,22 @@ const EditorDashboard = () => {
           <button onClick={() => setMode(mode === "light" ? "dark" : "light")} style={{ background: "none", border: "none", color: "#fff", fontSize: "1.2rem" }}>
             {mode === "light" ? <FaSun /> : <FaMoon />}
           </button>
+        <div style={{ marginBottom: "20px" }}>
+          <button
+            onClick={() => navigate("/editor-all")}
+            style={{
+              backgroundColor: "#3E5F44",
+              color: "#fff",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+              Go to All Posts
+            </button>
+          </div>
+
           <button onClick={() => { setUser(null); navigate("/login"); }} style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}>
             Logout
           </button>

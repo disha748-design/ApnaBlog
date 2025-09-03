@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
-
+import EditorAll from "./Components/EditorAll";
 import LandingPage from "./LandingPage";
 import HomePage from "./HomePage";
 import CreatePost from "./Components/CreatePost";
@@ -112,6 +112,8 @@ function App() {
       </ProtectedRoute>
     }
   />
+       {/* Editor All Posts */}
+<Route path="/editor-all" element={<EditorAll />} />
 
         {/* Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/" replace />} />

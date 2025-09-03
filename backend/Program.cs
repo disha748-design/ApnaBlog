@@ -74,6 +74,7 @@ builder.Services.AddHttpClient<HuggingFaceServices>((sp, client) =>
 
 builder.Services.AddHttpClient<CohereServices>();
 builder.Services.AddScoped<CohereServices>();
+builder.Services.AddSingleton<CohereServices>();
 
 // ----- Controllers / Swagger -----
 builder.Services.AddControllers()
