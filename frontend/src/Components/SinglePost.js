@@ -1,7 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
-import { FaEdit, FaTrash, FaUser, FaSun, FaMoon, FaCog } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrash,
+  FaUser,
+  FaSun,
+  FaMoon,
+  FaCog,
+  FaHeart,
+  FaRegHeart,
+  FaComment,
+  FaEye,
+} from "react-icons/fa";
 import "./SinglePost.css";
 
 export default function SinglePost() {
@@ -12,6 +23,7 @@ export default function SinglePost() {
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
@@ -49,6 +61,9 @@ export default function SinglePost() {
 
       const commentsRes = await api.get(`/posts/${id}/Comments`);
       setComments(commentsRes.data || []);
+
+      // check if user already liked
+      setLiked(res.data.userHasLiked || false);
     } catch (err) {
       console.error("Error fetching post or comments:", err);
     } finally {
@@ -73,6 +88,7 @@ export default function SinglePost() {
     try {
       const res = await api.post(`/Posts/${id}/like`);
       setPost((prev) => ({ ...prev, likesCount: res.data.likesCount }));
+      setLiked(res.data.userHasLiked);
     } catch (err) {
       if (err.response?.status === 401) {
         alert("Login required to like this post.");
@@ -158,7 +174,9 @@ export default function SinglePost() {
     <div className={`single-post-container ${isDarkMode ? "dark-mode" : ""}`}>
       {/* HEADER */}
       <header ref={dropdownRef}>
-        <div className="nav-brand" onClick={() => navigate("/home")}>ApnaBlog</div>
+        <div className="nav-brand" onClick={() => navigate("/home")}>
+          ApnaBlog
+        </div>
         <div className="settings-icon" onClick={() => setMenuOpen(!menuOpen)}>
           <FaCog />
         </div>
@@ -180,21 +198,33 @@ export default function SinglePost() {
         <div className="post-left">
           <h1 className="post-title">{post.title}</h1>
           <p className="post-meta">
-            By <strong>{post.authorUsername}</strong> • {new Date(post.createdAt).toLocaleDateString()}
+            By <strong>{post.authorUsername}</strong> •{" "}
+            {new Date(post.createdAt).toLocaleDateString()}
           </p>
-          <p className="post-views">{post.viewsCount || 0} views</p>
 
+
+
+
+          {/* Author Controls */}
           {isAuthor && (
             <div className="author-buttons">
-              <button className="btn-primary" onClick={handleEdit}><FaEdit /> Edit</button>
-              <button className="btn-danger" onClick={handleDelete}><FaTrash /> Delete</button>
+              <FaEdit className="icon-button" title="Edit" onClick={handleEdit} />
+              <FaTrash
+                className="icon-button delete"
+                title="Delete"
+                onClick={handleDelete}
+              />
             </div>
           )}
 
           {post.images?.map((img, idx) => (
             <img
               key={idx}
-              src={img.url.startsWith("http") ? img.url : `http://localhost:5096/${img.url}`}
+              src={
+                img.url.startsWith("http")
+                  ? img.url
+                  : `http://localhost:5096/${img.url}`
+              }
               alt={`Post ${idx}`}
               className="post-image"
             />
@@ -202,21 +232,38 @@ export default function SinglePost() {
 
           <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content }} />
 
+          {/* STATS */}
           <div className="post-stats">
-            <span>{post.likesCount || 0} Likes</span>
-            <span>{post.commentsCount || 0} Comments</span>
+            <span title="Views">
+              <FaEye /> {post.viewsCount || 0}
+            </span>
+            <span title="Likes">
+              <FaHeart /> {post.likesCount || 0}
+            </span>
+            <span title="Comments">
+              <FaComment /> {post.commentsCount || 0}
+            </span>
           </div>
 
-          <button className="btn-primary" onClick={handleLike} disabled={likeLoading}>
-            {likeLoading ? "Liking..." : "Like"}
+          {/* Like Button */}
+          <button
+            className="btn-icon"
+            onClick={handleLike}
+            disabled={likeLoading}
+            title="Like"
+          >
+            {likeLoading ? "…" : liked ? <FaHeart color="red" /> : <FaRegHeart />}
           </button>
 
+          {/* Comments Section */}
           <div className="comments-section">
             <h3>Comments</h3>
             {comments.length === 0 && <p>No comments yet.</p>}
             {comments.map((c) => (
               <div key={c.id || Math.random()} className="comment">
-                <strong>{c.authorName || c.authorUsername || c.user?.username || "Anonymous"}</strong>
+                <strong>
+                  {c.authorName || c.authorUsername || c.user?.username || "Anonymous"}
+                </strong>
                 : {c.content || ""}
                 <div className="comment-meta">
                   <small>{c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}</small>
@@ -229,14 +276,20 @@ export default function SinglePost() {
               placeholder="Write a comment..."
               className="comment-input"
             />
-            <button className="btn-primary" onClick={handleComment}>Post Comment</button>
+            <button className="btn-primary" onClick={handleComment}>
+              Post Comment
+            </button>
           </div>
         </div>
 
         <div className="post-right">
           <div className="side-box">
             <p>✨ Generate a quick summary!</p>
-            <button className="btn-primary" onClick={handleGenerateSummary} disabled={summaryLoading}>
+            <button
+              className="btn-primary"
+              onClick={handleGenerateSummary}
+              disabled={summaryLoading}
+            >
               {summaryLoading ? "Generating..." : "Generate Summary"}
             </button>
             {summary && <div className="summary-box">{summary}</div>}
