@@ -9,13 +9,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.FileProviders;
 using BlogApi.Data;
 using BlogApi.Models;
 using BlogApi.Repositories;
 using BlogApi.Repositories.Impl;
 using BlogApi.Services;
 using BlogApi.Services.Impl;
-using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +28,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequiredLength = 6;
     options.Password.RequireNonAlphanumeric = false;
-    options.SignIn.RequireConfirmedAccount = false; // we'll use IsApproved flag
+    options.SignIn.RequireConfirmedAccount = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -62,6 +62,7 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddSingleton<IRsaService, RsaService>();
 
 // ----- AI Services -----
 builder.Services.Configure<HuggingFaceSetting>(
@@ -75,7 +76,6 @@ builder.Services.AddHttpClient<HuggingFaceServices>((sp, client) =>
 
 builder.Services.AddHttpClient<CohereServices>();
 builder.Services.AddScoped<CohereServices>();
-builder.Services.AddSingleton<CohereServices>();
 
 // ----- Controllers / Swagger -----
 builder.Services.AddControllers()
@@ -103,14 +103,18 @@ var app = builder.Build();
 var uploadsPath = Path.Combine(app.Environment.WebRootPath ?? "wwwroot", "Uploads");
 Directory.CreateDirectory(uploadsPath);
 
-// Seed roles and admin user
+// Seed roles and admin
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    var roleMgr = services.GetRequiredService<RoleManager<IdentityRole>>();
-    var userMgr = services.GetRequiredService<UserManager<ApplicationUser>>();
-    var config = services.GetRequiredService<IConfiguration>();
+    var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
+    await SeedRolesAndAdmin(roleMgr, userMgr, config);
+}
+
+static async Task SeedRolesAndAdmin(RoleManager<IdentityRole> roleMgr, UserManager<ApplicationUser> userMgr, IConfiguration config)
+{
     string[] roles = new[] { "Admin", "Editor", "User" };
     foreach (var r in roles)
     {
@@ -148,15 +152,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseStaticFiles();
 
-// ✅ Enable static files for /uploads folder
+app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    FileProvider = new PhysicalFileProvider(uploadsPath),
     RequestPath = "/uploads"
 });
+
 app.UseRouting();
 app.UseCors("AllowReactApp");
 app.UseAuthentication();

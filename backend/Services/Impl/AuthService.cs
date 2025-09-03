@@ -14,41 +14,66 @@ namespace BlogApi.Services.Impl
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _config;
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config)
+
+        private readonly IRsaService _rsaService;
+        public AuthService(
+            UserManager<ApplicationUser> userManager, 
+            SignInManager<ApplicationUser> signInManager, 
+            IConfiguration config,
+            IRsaService rsaService
+            )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _config = config;
+            _rsaService = rsaService;
         }
 
-        public async Task<ApplicationUser?> LoginWithUserAsync(LoginDto dto)
+         public async Task<ApplicationUser?> LoginWithUserAsync(LoginDto dto)
+{
+    // Decrypt password if using RSA
+    if (!string.IsNullOrEmpty(dto.Password))
+    {
+        try
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user == null || !user.IsApproved) return null;
-
-            var result = await _signInManager.PasswordSignInAsync(dto.Email, dto.Password, false, false);
-            if (!result.Succeeded) return null;
-
-            return user;
+            dto.Password = _rsaService.Decrypt(dto.Password); // Inject IRsaService in AuthService constructor
         }
-        public async Task<IdentityResult> RegisterAsync(RegisterDto dto)
+        catch (Exception ex)
         {
-            var user = new ApplicationUser
-            {
-                UserName = dto.Email,
-                Email = dto.Email,
-                DisplayName = dto.DisplayName,
-                IsApproved = false, // new users must be approved first
-                RequestedRole = string.IsNullOrEmpty(dto.RequestedRole) ? "User" : dto.RequestedRole
-            };
-
-            var result = await _userManager.CreateAsync(user, dto.Password);
-
-            // ❌ DO NOT assign roles here
-            // Roles will be given only when Admin approves user
-
-            return result;
+            // Log and return null
+            Console.WriteLine("RSA decryption failed: " + ex.Message);
+            return null;
         }
+    }
+
+    // Find user by email
+    var user = await _userManager.FindByEmailAsync(dto.Email);
+    if (user == null) return null;
+
+    // Check password
+    var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+    if (!passwordValid) return null;
+
+    return user; // Return nullable ApplicationUser?
+}
+
+
+
+ public async Task<IdentityResult> RegisterAsync(RegisterDto dto)
+{
+    var user = new ApplicationUser
+    {
+        DisplayName = dto.DisplayName,
+        Email = dto.Email,
+        UserName = dto.Email,
+        RequestedRole = dto.RequestedRole,
+        IsApproved = false
+    };
+
+    var result = await _userManager.CreateAsync(user, dto.Password);
+    return result; // IdentityResult matches interface
+}
+
 
 
         public async Task<bool> LoginAsync(LoginDto dto)
