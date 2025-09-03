@@ -7,13 +7,12 @@ import "./UserProfile.css";
 export default function UserProfile() {
   const navigate = useNavigate();
 
-  // --- States ---
-  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [about, setAbout] = useState("");
   const [preferences, setPreferences] = useState([]);
-  const [profileImage, setProfileImage] = useState(null); // saved backend image
-  const [previewImage, setPreviewImage] = useState(null); // new image preview
+  const [profileImage, setProfileImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
   const [aiTips, setAiTips] = useState("Fetching AI insights...");
   const [stats, setStats] = useState({
     totalPosts: 0,
@@ -25,42 +24,25 @@ export default function UserProfile() {
   const [successMsg, setSuccessMsg] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
-  // --- Fetch Profile ---
   const fetchProfile = async () => {
     try {
       const res = await api.get("/UserProfile/me");
-      setUsername(res.data.username || "");
+      setDisplayName(res.data.displayName || "");
       setEmail(res.data.email || "");
       setAbout(res.data.about || "");
       setPreferences(res.data.preferences ? JSON.parse(res.data.preferences) : []);
       setProfileImage(res.data.profileImageUrl || null);
 
-      // Fetch stats
-      try {
-  const statsRes = await api.get("/UserStats/me");
-  console.log("Stats response:", statsRes.data); // <-- log this
-  const data = statsRes.data;
-  setStats({
-    totalPosts: data.totalPosts,
-    mostViewed: {
-      id: data.mostViewedPost?.id || null,
-      title: data.mostViewedPost?.title || "N/A",
-    },
-    mostCommented: {
-      id: data.mostCommentedPost?.id || null,
-      title: data.mostCommentedPost?.title || "N/A",
-    },
-    mostLiked: {
-      id: data.mostLikedPost?.id || null,
-      title: data.mostLikedPost?.title || "N/A",
-    },
-  });
-} catch (statsErr) {
-  console.warn("Could not fetch stats:", statsErr);
-}
-
+      const statsRes = await api.get("/UserStats/me");
+      const data = statsRes.data;
+      setStats({
+        totalPosts: data.totalPosts,
+        mostViewed: { id: data.mostViewedPost?.id || null, title: data.mostViewedPost?.title || "N/A" },
+        mostCommented: { id: data.mostCommentedPost?.id || null, title: data.mostCommentedPost?.title || "N/A" },
+        mostLiked: { id: data.mostLikedPost?.id || null, title: data.mostLikedPost?.title || "N/A" },
+      });
     } catch (err) {
-      console.error("Failed to fetch profile:", err);
+      console.error("Failed to fetch profile or stats:", err);
       navigate("/login");
     }
   };
@@ -69,12 +51,10 @@ export default function UserProfile() {
     fetchProfile();
   }, [navigate]);
 
-  // --- Fetch AI Insights ---
   useEffect(() => {
-    if (!username) return;
     const fetchInsights = async () => {
       try {
-        const res = await api.get(`/BlogInsights/${username}`);
+        const res = await api.get("/BlogInsights/me");
         setAiTips(res.data.tips);
       } catch (err) {
         console.error("Failed to fetch AI tips:", err);
@@ -82,9 +62,8 @@ export default function UserProfile() {
       }
     };
     fetchInsights();
-  }, [username]);
+  }, []);
 
-  // --- Preferences Handlers ---
   const handlePreferenceChange = (i, value) => {
     const newPrefs = [...preferences];
     newPrefs[i] = value;
@@ -93,7 +72,6 @@ export default function UserProfile() {
   const addPreference = () => setPreferences([...preferences, ""]);
   const removePreference = (i) => setPreferences(preferences.filter((_, idx) => idx !== i));
 
-  // --- Image Handler ---
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
       setPreviewImage(URL.createObjectURL(e.target.files[0]));
@@ -101,33 +79,21 @@ export default function UserProfile() {
     }
   };
 
-  // --- Save Profile ---
   const handleSave = async () => {
-    if (!profileImage && !previewImage) {
-      alert("Profile image is required!");
-      return;
-    }
-
     try {
       setLoading(true);
       const formData = new FormData();
       formData.append("AboutMe", about);
       formData.append("Preferences", JSON.stringify(preferences));
-      if (previewImage) {
-        formData.append("ProfileImage", profileImage);
-      }
+      if (previewImage) formData.append("ProfileImage", profileImage);
 
-      await api.put("/UserProfile/me", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.put("/UserProfile/me", formData, { headers: { "Content-Type": "multipart/form-data" } });
 
       setSuccessMsg("✅ Profile updated!");
       setIsEditing(false);
       setPreviewImage(null);
 
-      // Refetch to sync frontend with backend
       await fetchProfile();
-
       setTimeout(() => setSuccessMsg(""), 3000);
     } catch (err) {
       console.error("Save error:", err);
@@ -137,7 +103,6 @@ export default function UserProfile() {
     }
   };
 
-  // --- Logout ---
   const handleLogout = async () => {
     try {
       await api.post("/Auth/logout");
@@ -149,7 +114,13 @@ export default function UserProfile() {
   };
 
   return (
-    <div style={{ fontFamily: "'Georgia', serif", backgroundColor: "#E8FFD7", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{
+      fontFamily: "'Georgia', serif",
+      background: "linear-gradient(135deg, #F4F4F9, #E8FFD7)",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column"
+    }}>
       {/* Header */}
       <header style={{ padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: "#043D1E", color: "#fff" }}>
         <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }} onClick={() => navigate("/home")}>ApnaBlog</div>
@@ -157,18 +128,28 @@ export default function UserProfile() {
       </header>
 
       {/* Main Content */}
-      <main style={{ flexGrow: 1, width: "90%", maxWidth: "1000px", margin: "2rem auto", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        <h2 style={{ textAlign: "center", color: "#3E5F44" }}>Welcome back, {username} 👋</h2>
+      <main style={{
+        flexGrow: 1,
+        width: "90%",
+        maxWidth: "1000px",
+        margin: "2rem auto",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.5rem"
+      }}>
+        <h2 style={{ textAlign: "center", color: "#3E5F44" }}>Welcome back, {displayName} 👋</h2>
 
         <div className="profile-grid">
           {/* Avatar */}
           <div className="profile-card center-card">
-            {previewImage || profileImage ? (
-              <img src={previewImage || profileImage} alt="Profile" className="profile-preview" />
+            {previewImage ? (
+              <img src={previewImage} alt="Profile Preview" className="profile-preview" />
+            ) : profileImage ? (
+              <img src={profileImage.startsWith("http") ? profileImage : `http://localhost:5096${profileImage}`} alt="Profile" className="profile-preview" />
             ) : (
               <FaUserCircle size={120} className="profile-icon" />
             )}
-            <h3 className="profile-username">{username}</h3>
+            <h3 className="profile-username">{displayName}</h3>
             <p className="profile-email">{email}</p>
           </div>
 
@@ -227,7 +208,7 @@ export default function UserProfile() {
             </div>
 
             <div className="profile-card tips-card">
-              <h3 className="section-title">💡Personalised Blog Growth Tips</h3>
+              <h3 className="section-title">💡 Personalised Blog Growth Tips</h3>
               <ul className="tips-list">
                 {aiTips ? aiTips.split(/\n|(?<=\.)/).map(t => t.replace(/^\d+\.?\s*/, "").trim()).filter(t => t.length > 0).slice(0, 5).map((tip, i) => (
                   <li key={i} className="tip-item">✨ {tip}</li>
@@ -239,7 +220,7 @@ export default function UserProfile() {
       </main>
 
       {/* Footer */}
-      <footer style={{ marginTop: "auto", padding: "1rem 2rem", fontSize: "0.85rem", color: "#fff", backgroundColor: "#043D1E", borderTop: "1px solid #ddd", display: "flex", justifyContent: "center" }}>
+      <footer className="footer">
         © 2025 ApnaBlog. All rights reserved.
       </footer>
     </div>

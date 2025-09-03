@@ -1,11 +1,45 @@
-/* General container */
+/* ================= General Container ================= */
 .profile-container {
   font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 60px;
+  background-color: linear-gradient(135deg, #F4F4F9, #E8FFD7);
+  box-sizing: border-box;
+  padding-bottom: 0; /* content spacing handled via flex */
 }
 
-/* Navbar */
+.profile-grid {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Stack on small screens */
+@media (max-width: 768px) {
+  .profile-grid {
+    flex-direction: column;
+  }
+  .profile-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+}
+
+/* Footer styling */
+.profile-footer {
+  margin-top: auto;
+  padding: 1rem 2rem;
+  font-size: 0.85rem;
+  color: #fff;
+  background-color: #043d1e;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: center;
+}
+
+/* ================= Navbar ================= */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -42,45 +76,36 @@
   color: #fff;
 }
 
-/* Main content wrapper */
+/* ================= Main Content ================= */
 .profile-main {
+  flex: 1; /* grow to fill space above footer */
   max-width: 1100px;
-  margin: 100px auto 25px; /* added top margin to avoid navbar overlap */
+  margin: 120px auto 0; /* top margin avoids navbar */
   padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
+/* Header */
 .profile-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
-
 .profile-welcome {
   font-size: 1.8rem;
   color: #3e5f44;
   font-weight: 600;
 }
 
-/* Profile grid */
+/* ================= Profile Grid ================= */
 .profile-grid {
   display: grid;
-  grid-template-columns: 1fr; /* single column by default */
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
-/* Stats + Tips container (side by side on large screens) */
-.stats-tips-container {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-/* Each card takes half width on large screens */
-.stats-tips-container .profile-card {
-  flex: 1 1 45%;
-  min-width: 300px;
-}
-
-/* Profile card base styles */
+/* ================= Profile Card ================= */
 .profile-card {
   display: flex;
   flex-direction: column;
@@ -91,7 +116,6 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: transform 0.3s, box-shadow 0.3s;
 }
-
 .profile-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 14px 30px rgba(0,0,0,0.12);
@@ -101,41 +125,61 @@
 .center-card {
   text-align: center;
 }
-
 .profile-icon {
   color: #5e936c;
   margin-bottom: 15px;
 }
-
+.profile-preview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
 .profile-username {
   font-size: 1.8rem;
   color: #3e5f44;
   font-weight: 700;
 }
-
 .profile-email {
   color: #5e936c;
   font-weight: 500;
 }
 
-/* Stats card */
+/* ================= Stats + Tips ================= */
+.stats-tips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+}
+
+.stats-tips-container .profile-card {
+  flex: 1 1 45%;
+  min-width: 280px;
+  max-width: 100%;
+}
+
+/* Stats Card */
 .stats-card p {
   margin: 10px 0;
   font-size: 1rem;
 }
 
-/* Tips list */
-.tips-list {
+/* Tips Card */
+.tips-card .tips-list {
   padding-left: 1rem;
-  text-align: left;
-  width: 100%;
 }
-
 .tip-item {
+  background: #E8FFD7;
+  padding: 6px 10px;
+  border-radius: 8px;
   margin-bottom: 0.5rem;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
-/* About & Preferences */
+/* ================= About & Preferences ================= */
 .section-title {
   font-size: 1.4rem;
   color: #3e5f44;
@@ -145,7 +189,6 @@
   padding-bottom: 5px;
 }
 
-/* Display section */
 .display-section p {
   margin: 12px 0;
   line-height: 1.5;
@@ -163,11 +206,8 @@
   cursor: pointer;
   transition: background 0.3s;
 }
-.display-section .edit-btn:hover {
-  background: #2f4f33;
-}
+.display-section .edit-btn:hover { background: #2f4f33; }
 
-/* Edit mode inputs */
 .textarea, .input {
   width: 100%;
   padding: 12px;
@@ -176,6 +216,7 @@
   border: 1px solid #ccc;
   font-family: "Poppins", sans-serif;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .pref-row {
@@ -183,7 +224,6 @@
   align-items: center;
   margin-bottom: 12px;
 }
-
 .remove-btn {
   margin-left: 12px;
   padding: 4px 10px;
@@ -217,38 +257,41 @@
   animation: fadein 0.5s;
 }
 
-/* Footer */
+/* ================= Footer ================= */
 .profile-footer {
   text-align: center;
-  margin-top: 40px;
   padding: 15px 0;
   background: #f0f8ff;
   color: #3e5f44;
   font-weight: 500;
   border-top: 1px solid #5e936c;
+  width: 100%;
 }
 
-/* Animation */
+/* ================= Animation ================= */
 @keyframes fadein {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-/* Responsive tweaks */
+/* ================= Responsive ================= */
 @media (max-width: 900px) {
   .stats-tips-container {
     flex-direction: column;
+    align-items: stretch;
   }
-  .stats-tips-container .profile-card {
-    flex: 1 1 100%;
-  }
+  .stats-tips-container .profile-card { flex: 1 1 100%; }
 }
 
 @media (max-width: 700px) {
-  .profile-grid {
-    gap: 20px;
-  }
-  .profile-card {
-    padding: 20px;
-  }
+  .profile-grid { gap: 20px; }
+  .profile-card { padding: 20px; }
+  .navbar { flex-direction: column; align-items: flex-start; }
+  .logout-btn { width: 100%; margin-top: 10px; }
+}
+
+@media (max-width: 480px) {
+  .profile-welcome { font-size: 1.4rem; }
+  .profile-username { font-size: 1.4rem; }
+  .profile-preview { width: 100px; height: 100px; }
 }
