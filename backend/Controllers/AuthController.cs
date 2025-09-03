@@ -16,6 +16,23 @@ namespace BlogApi.Controllers
         private readonly IAuthService _svc;
         public AuthController(IAuthService svc) { _svc = svc; }
 
+
+[HttpPost("admin-login")]
+public async Task<IActionResult> AdminLogin([FromBody] AdminLoginDto dto)
+{
+    var success = await _svc.LoginAdminAsync(dto.Email, dto.Password);
+    if (!success)
+        return Unauthorized(new { message = "Invalid admin credentials." });
+
+    return Ok(new
+    {
+        id = "admin",
+        email = dto.Email,
+        displayName = "Administrator",
+        role = "Admin"
+    });
+}
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {

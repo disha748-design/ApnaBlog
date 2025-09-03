@@ -10,8 +10,8 @@ namespace BlogApi.Services
         Task<IdentityResult> RegisterAsync(RegisterDto dto);
         Task<bool> LoginAsync(LoginDto dto);
         Task LogoutAsync();
-
-        Task<ApplicationUser> LoginWithUserAsync(LoginDto dto);
+        Task<bool> LoginAdminAsync(string email, string password);
+        Task<ApplicationUser?> LoginWithUserAsync(LoginDto dto);
         Task<IList<string>> GetRolesAsync(ApplicationUser user);
     }
 }

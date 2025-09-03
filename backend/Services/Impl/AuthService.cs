@@ -1,5 +1,8 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
+using System.Collections.Generic;
+using System.Security.Claims;
 using BlogApi.DTOs.Auth;
 using BlogApi.Models;
 using Microsoft.AspNetCore.Identity;
@@ -10,14 +13,15 @@ namespace BlogApi.Services.Impl
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        private readonly IConfiguration _config;
+        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _config = config;
         }
 
-        public async Task<ApplicationUser> LoginWithUserAsync(LoginDto dto)
+        public async Task<ApplicationUser?> LoginWithUserAsync(LoginDto dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null || !user.IsApproved) return null;
@@ -64,6 +68,34 @@ namespace BlogApi.Services.Impl
         public async Task<IList<string>> GetRolesAsync(ApplicationUser user)
         {
             return await _userManager.GetRolesAsync(user);
+        }
+
+        
+         public async Task<bool> LoginAdminAsync(string email, string password)
+        {
+            var adminEmail = _config["AdminSeed:Email"];
+            var adminPassword = _config["AdminSeed:Password"];
+
+            if (email == adminEmail && password == adminPassword)
+            {
+                // Create claims principal for admin
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, email),
+                    new Claim(ClaimTypes.Role, "Admin")
+                };
+
+                var identity = new ClaimsIdentity(claims, IdentityConstants.ApplicationScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                await _signInManager.Context.SignInAsync(
+                    IdentityConstants.ApplicationScheme,
+                    principal);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

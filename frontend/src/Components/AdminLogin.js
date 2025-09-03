@@ -41,7 +41,7 @@ export default function AdminLogin() {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "http://localhost:5096/api/Auth/login",
+        "http://localhost:5096/api/Auth/admin-login",
         { email, password },
         { withCredentials: true }
       );

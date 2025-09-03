@@ -32,7 +32,7 @@ const AuthModal = ({ show, onClose }) => {
         "Registration successful! Your account has been sent for admin approval."
       );
     } else {
-      const res = await api.post("/Auth/login", {
+      const res = await api.post("/Auth/admin-login", {
         email: formData.email,
         password: formData.password,
       });
