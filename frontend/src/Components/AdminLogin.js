@@ -14,7 +14,7 @@ export default function AdminLogin() {
 
   const themeColors = {
     headerFooterBg: "#3E5F44",
-    mainBg: "#E8FFD7",
+    mainBg: "linear-gradient(135deg, #F4F4F9, #E8FFD7)",
     buttonPrimary: "#5E936C",
     buttonText: "#fff",
     textDark: "#2E2E2E",
@@ -25,16 +25,15 @@ export default function AdminLogin() {
     background: themeColors.buttonSecondary,
     border: "none",
     cursor: "pointer",
-    fontSize: "0.95rem",
     color: "#fff",
     padding: 0,
-    fontFamily: "'Poppins', sans-serif",
+    fontFamily: "Georgia, serif",
+    textDecoration: "none",
   };
 
   const footerBtnStyle = {
     ...navBtnStyle,
     fontSize: "0.85rem",
-    textDecoration: "none",
     fontWeight: "400",
   };
 
@@ -61,8 +60,8 @@ export default function AdminLogin() {
   return (
     <div
       style={{
-        fontFamily: "'Poppins', sans-serif",
-        backgroundColor: themeColors.mainBg,
+        fontFamily: "Georgia, serif",
+        background: themeColors.mainBg,
         minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
@@ -84,17 +83,15 @@ export default function AdminLogin() {
           ApnaBlog <span style={{ fontWeight: "400" }}>Admin</span>
         </div>
 
-        {/* Desktop Links */}
         <div
           className="desktop-nav"
-          style={{ display: "flex", gap: "1.8rem", fontSize: "0.9rem" }}
+          style={{ display: "flex", gap: "1.8rem", fontSize: "1rem" }}
         >
           <button onClick={() => navigate("/")} style={navBtnStyle}>
             Home
           </button>
         </div>
 
-        {/* Hamburger for mobile */}
         <div
           className="hamburger"
           style={{ fontSize: "1.5rem", cursor: "pointer", display: "none" }}
@@ -103,7 +100,6 @@ export default function AdminLogin() {
           {menuOpen ? <FaTimes /> : <FaBars />}
         </div>
 
-        {/* Mobile menu */}
         {menuOpen && (
           <div
             style={{
@@ -127,33 +123,41 @@ export default function AdminLogin() {
       </nav>
 
       {/* Login Card */}
-      <div
+      <main
         style={{
           flexGrow: 1,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          padding: "2rem",
+          padding: "2rem 1rem",
         }}
       >
         <div
           style={{
-            background: "#fff",
-            padding: "2rem",
-            borderRadius: "10px",
-            maxWidth: "400px",
+            backgroundColor: "rgba(255,255,255,0.95)",
+            padding: "3rem 2.5rem",
+            borderRadius: "15px",
+            maxWidth: "420px",
             width: "100%",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+            boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem",
           }}
         >
-          <h2 style={{ marginBottom: "1.5rem", textAlign: "center", color: themeColors.textDark }}>
+          <h2
+            style={{
+              marginBottom: "1.5rem",
+              textAlign: "center",
+              color: themeColors.textDark,
+              fontSize: "2rem",
+            }}
+          >
             Admin Login
           </h2>
-          <form onSubmit={handleLogin}>
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
-                Email
-              </label>
+          <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>Email</label>
               <input
                 type="email"
                 placeholder="Enter your admin email"
@@ -163,17 +167,14 @@ export default function AdminLogin() {
                 style={{
                   width: "100%",
                   padding: "0.75rem",
-                  borderRadius: "6px",
+                  borderRadius: "8px",
                   border: "1px solid #ccc",
                   fontSize: "1rem",
                 }}
               />
             </div>
-
-            <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
-                Password
-              </label>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem" }}>Password</label>
               <input
                 type="password"
                 placeholder="Enter your password"
@@ -183,32 +184,34 @@ export default function AdminLogin() {
                 style={{
                   width: "100%",
                   padding: "0.75rem",
-                  borderRadius: "6px",
+                  borderRadius: "8px",
                   border: "1px solid #ccc",
                   fontSize: "1rem",
                 }}
               />
             </div>
-
             <button
               type="submit"
               style={{
                 width: "100%",
-                padding: "0.9rem",
+                padding: "0.85rem",
                 backgroundColor: themeColors.buttonPrimary,
                 color: themeColors.buttonText,
                 border: "none",
-                borderRadius: "6px",
+                borderRadius: "8px",
                 fontSize: "1rem",
                 fontWeight: "600",
                 cursor: "pointer",
+                transition: "all 0.2s ease-in-out",
               }}
+              onMouseOver={(e) => (e.currentTarget.style.opacity = "0.9")}
+              onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
             >
               Login
             </button>
           </form>
         </div>
-      </div>
+      </main>
 
       {/* Footer */}
       <footer
@@ -217,32 +220,19 @@ export default function AdminLogin() {
           fontSize: "0.85rem",
           color: "#fff",
           backgroundColor: themeColors.headerFooterBg,
-          borderTop: "1px solid #ddd",
           display: "flex",
           justifyContent: "center",
-          gap: "2rem",
-          flexWrap: "wrap",
         }}
       >
         <button onClick={() => navigate("/")} style={footerBtnStyle}>
-          Back to Home
+          @2025ApnaBlog
         </button>
       </footer>
 
-      {/* Inline responsive styles */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .hamburger { display: block !important; }
-        }
-
-        button {
-          transition: all 0.2s ease-in-out;
-        }
-        button:hover {
-          opacity: 0.85;
         }
       `}</style>
     </div>

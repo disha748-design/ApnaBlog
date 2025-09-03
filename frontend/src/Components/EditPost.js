@@ -231,6 +231,7 @@ export default function EditPost() {
     textAlign: "center",
     marginTop: "auto",
     display: "flex",
+    fontFamily: "Georgia, serif",fontSize: "1.5rem",
     justifyContent: "center",
     gap: "1.5rem",
     flexWrap: "wrap",

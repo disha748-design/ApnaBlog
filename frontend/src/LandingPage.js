@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AuthModal from "./Components/AuthModal";
 import UserEditorAuthModal from "./Components/UserEditorAuthModal";
 import { useNavigate } from "react-router-dom";
@@ -29,20 +29,47 @@ const LandingPage = () => {
     fontSize: "0.95rem",
     color: "#fff",
     padding: 0,
-    fontFamily: "'Poppins', sans-serif",
+    fontFamily: "Georgia, serif",
   };
 
   const footerBtnStyle = {
     ...navBtnStyle,
     fontSize: "0.85rem",
-    textDecoration: "none", // removed underline
+    textDecoration: "none",
     fontWeight: "400",
   };
+
+  // Typing effect state
+  const fullText = "Stories that spark change....";
+  const [displayText, setDisplayText] = useState("");
+  const [index, setIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const speed = 150; // typing speed in ms
+    const timeout = setTimeout(() => {
+      if (!deleting) {
+        setDisplayText(fullText.slice(0, index + 1));
+        setIndex(index + 1);
+        if (index + 1 === fullText.length) {
+          setDeleting(true);
+        }
+      } else {
+        setDisplayText(fullText.slice(0, index - 1));
+        setIndex(index - 1);
+        if (index - 1 === 0) {
+          setDeleting(false);
+        }
+      }
+    }, speed);
+
+    return () => clearTimeout(timeout);
+  }, [index, deleting]);
 
   return (
     <div
       style={{
-        fontFamily: "'Poppins', sans-serif",
+        fontFamily: "Georgia, serif",
         backgroundColor: themeColors.mainBg,
         minHeight: "100vh",
         display: "flex",
@@ -54,6 +81,7 @@ const LandingPage = () => {
         style={{
           padding: "1rem 2rem",
           display: "flex",
+          fontSize: "1.5rem",
           justifyContent: "space-between",
           alignItems: "center",
           backgroundColor: themeColors.headerFooterBg,
@@ -61,7 +89,7 @@ const LandingPage = () => {
           position: "relative",
         }}
       >
-        <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }}>
+        <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer", fontFamily: "Georgia, serif" }}>
           <button
             onClick={handleOpenModal}
             style={{ ...navBtnStyle, fontSize: "1.5rem", fontWeight: "700" }}
@@ -133,25 +161,25 @@ const LandingPage = () => {
               lineHeight: "1.2",
               marginBottom: "1rem",
               fontWeight: "700",
-              fontFamily: "'Georgia', serif",
+              fontFamily: "Georgia, serif",
               color: themeColors.textDark,
             }}
           >
-            Stories <br /> that spark change
+            {displayText}
+            <span style={{ borderRight: "2px solid", marginLeft: "2px" }}></span>
           </h1>
           <p
             style={{
               fontSize: "1.2rem",
               marginBottom: "2.5rem",
               color: themeColors.textDark,
-              fontFamily: "'Poppins', sans-serif",
             }}
           >
             Read. Write. Connect. Turn your thoughts into impact and be part of
             a community that cares.
           </p>
 
-          {/* Get Started Button opens UserEditorAuthModal */}
+          {/* Get Started Button */}
           <button
             onClick={() => setShowUserEditorModal(true)}
             style={{
@@ -162,7 +190,6 @@ const LandingPage = () => {
               border: "none",
               cursor: "pointer",
               fontSize: "1rem",
-              fontFamily: "'Poppins', sans-serif",
               fontWeight: "600",
             }}
           >
@@ -194,13 +221,19 @@ const LandingPage = () => {
           flexWrap: "wrap",
         }}
       >
-        <button onClick={handleOpenModal} style={footerBtnStyle}>About</button>
-        <button onClick={handleOpenModal} style={footerBtnStyle}>Contact</button>
-        <button onClick={handleOpenModal} style={footerBtnStyle}>Terms & Privacy</button>
-        <button onClick={() => navigate("/admin-login")} style={footerBtnStyle}>
-          Admin Portal
-        </button>
-      </footer>
+    <button onClick={() => navigate("/about")} style={footerBtnStyle}>
+    About
+  </button>
+  <button onClick={() => navigate("/contact")} style={footerBtnStyle}>
+    Contact
+  </button>
+  <button onClick={() => navigate("/terms")} style={footerBtnStyle}>
+    Terms & Privacy
+  </button>
+  <button onClick={() => navigate("/admin-login")} style={footerBtnStyle}>
+    Admin Portal
+  </button>
+</footer>
 
       {/* Modals */}
       {showModal && <AuthModal onClose={handleCloseModal} />}
@@ -209,8 +242,6 @@ const LandingPage = () => {
       )}
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .hamburger { display: block !important; }
@@ -218,6 +249,7 @@ const LandingPage = () => {
 
         button {
           transition: all 0.2s ease-in-out;
+          font-family: Georgia, serif;
         }
         button:hover {
           opacity: 0.8;

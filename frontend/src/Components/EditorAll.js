@@ -80,6 +80,8 @@ export default function EditorAll() {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "1rem 2rem",
+          fontFamily: "Georgia, serif",
+          fontSize: "1.5rem",
           backgroundColor: themeColors.headerFooterBg,
           color: "#fff",
           flexWrap: "wrap",

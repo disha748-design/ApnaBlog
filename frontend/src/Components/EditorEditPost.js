@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import api from "../api";
-import { FaPlus, FaPen, FaTrash } from "react-icons/fa";
+import { FaPlus, FaPen } from "react-icons/fa";
+import "./EditorEditPost.css"; // We'll put responsive CSS here
 
 export default function EditorEditPost() {
   const { id } = useParams();
@@ -14,17 +15,6 @@ export default function EditorEditPost() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const colors = {
-    mainBg: "#E8FFD7",
-    cardBg: "#FFFFFF",
-    headerFooterBg: "#3E5F44",
-    text: "#1C1C1C",
-    buttonBg: "#5E936C",
-    buttonText: "#fff",
-    inputBg: "#fff",
-  };
-
-  // Fetch post data for editor
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -32,7 +22,6 @@ export default function EditorEditPost() {
         setPost(res.data);
         setTitle(res.data.title);
 
-        // Text blocks
         const textBlocks = res.data.content
           ? res.data.content.split("\n\n").map((t, idx) => ({
               blockType: "text",
@@ -43,7 +32,6 @@ export default function EditorEditPost() {
             }))
           : [];
 
-        // Existing images
         const imageBlocks = (res.data.images || []).map((img, idx) => ({
           blockType: "image",
           textContent: "",
@@ -63,14 +51,12 @@ export default function EditorEditPost() {
     fetchPost();
   }, [id]);
 
-  // Update text block
   const handleTextChange = (value, index) => {
     const newBlocks = [...blocks];
     newBlocks[index].textContent = value;
     setBlocks(newBlocks);
   };
 
-  // Add new text block
   const handleAddBlock = () => {
     setBlocks([
       ...blocks,
@@ -78,7 +64,6 @@ export default function EditorEditPost() {
     ]);
   };
 
-  // Add/replace image in block
   const handleAddImage = (e, index) => {
     const file = e.target.files[0];
     if (file) {
@@ -94,13 +79,6 @@ export default function EditorEditPost() {
     }
   };
 
-  // Remove any block
-  const handleRemoveBlock = (index) => {
-    const newBlocks = blocks.filter((_, i) => i !== index);
-    setBlocks(newBlocks);
-  };
-
-  // Submit updated post
   const handleSubmit = async () => {
     if (!title.trim()) return alert("Title cannot be empty!");
     setIsSubmitting(true);
@@ -110,13 +88,9 @@ export default function EditorEditPost() {
       formData.append("title", title);
       formData.append(
         "content",
-        blocks
-          .filter((b) => b.blockType === "text")
-          .map((b) => b.textContent)
-          .join("\n\n")
+        blocks.filter((b) => b.blockType === "text").map((b) => b.textContent).join("\n\n")
       );
 
-      // Only upload new images
       blocks
         .filter((b) => b.blockType === "image" && b.isNew)
         .forEach((b, idx) => {
@@ -144,58 +118,42 @@ export default function EditorEditPost() {
     }
   };
 
-  if (loading) return <p style={{ padding: "2rem" }}>Loading post...</p>;
-  if (!post) return <p style={{ padding: "2rem" }}>Post not found</p>;
+  if (loading) return <p className="loading">Loading post...</p>;
+  if (!post) return <p className="loading">Post not found</p>;
 
   return (
-    <div style={{ backgroundColor: colors.mainBg, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* HEADER */}
-      <nav style={{ backgroundColor: colors.headerFooterBg, color: colors.buttonText, padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 100 }}>
-        <div style={{ fontWeight: "bold", fontSize: "1.2rem", cursor: "pointer" }} onClick={() => navigate("/editor-dashboard")}>ApnaBlog</div>
+    <div className="editor-page">
+      <nav className="editor-header">
+        <div className="logo" onClick={() => navigate("/editor-dashboard")}>ApnaBlog</div>
       </nav>
 
-      {/* MAIN CONTENT */}
-      <main style={{ flex: 1, padding: "2rem", maxWidth: "900px", margin: "0 auto", width: "100%" }}>
-        <h2 style={{ marginBottom: "1rem", color: colors.text }}>Edit Post</h2>
-
+      <main className="editor-main">
+        <h2>Edit Post</h2>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Post Title"
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            borderRadius: "8px",
-            border: `1px solid ${colors.buttonBg}`,
-            marginBottom: "1rem",
-            backgroundColor: colors.inputBg,
-            color: colors.text,
-            fontSize: "1rem",
-          }}
+          className="post-title-input"
         />
 
         {blocks.map((block, idx) => (
-          <div key={idx} style={{ border: `1px solid ${colors.buttonBg}`, borderRadius: "10px", padding: "12px", marginBottom: "1rem", backgroundColor: colors.inputBg }}>
+          <div key={idx} className="editor-block">
             {block.blockType === "text" && <ReactQuill value={block.textContent} onChange={(val) => handleTextChange(val, idx)} />}
             {block.blockType === "image" && block.imageUrlOrBase64 && (
-              <img src={block.imageUrlOrBase64} alt="preview" style={{ width: "100%", marginTop: "8px", borderRadius: "8px" }} />
+              <img src={block.imageUrlOrBase64} alt="preview" className="editor-image" />
             )}
-            <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
-              <input type="file" accept="image/*" onChange={(e) => handleAddImage(e, idx)} />
-              <button onClick={() => handleRemoveBlock(idx)} style={{ background: "red", color: "#fff", border: "none", borderRadius: "6px", padding: "4px 8px", cursor: "pointer" }}><FaTrash /> Remove</button>
-            </div>
+            <input type="file" accept="image/*" onChange={(e) => handleAddImage(e, idx)} className="image-input" />
           </div>
         ))}
 
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "1rem" }}>
-          <button onClick={handleAddBlock} style={{ background: colors.buttonBg, color: colors.buttonText, padding: "10px", borderRadius: "8px", cursor: "pointer", flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}><FaPlus /> Add Block</button>
-          <button onClick={handleSubmit} disabled={isSubmitting} style={{ background: colors.buttonBg, color: colors.buttonText, padding: "10px", borderRadius: "8px", cursor: "pointer", flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}><FaPen /> {isSubmitting ? "Updating..." : "Save Changes"}</button>
-          <button onClick={() => navigate("/editor-dashboard")} style={{ padding: "10px", borderRadius: "8px", border: `1px solid ${colors.buttonBg}`, cursor: "pointer", flex: 1 }}>Cancel</button>
+        <div className="editor-buttons">
+          <button onClick={handleAddBlock}><FaPlus /> Add Block</button>
+          <button onClick={handleSubmit} disabled={isSubmitting}><FaPen /> {isSubmitting ? "Updating..." : "Save Changes"}</button>
+          <button onClick={() => navigate("/editor-dashboard")}>Cancel</button>
         </div>
       </main>
 
-      {/* FOOTER */}
-      <footer style={{ backgroundColor: colors.headerFooterBg, color: colors.buttonText, textAlign: "center", padding: "1rem", marginTop: "auto" }}>© 2025 ApnaBlog</footer>
+      <footer className="editor-footer">© 2025 ApnaBlog</footer>
     </div>
   );
 }

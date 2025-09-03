@@ -171,8 +171,7 @@ export default function TermsPage() {
           flexWrap: "wrap",
         }}
       >
-        <Link to="/" style={{ textDecoration: "none", color: "#fff" }}>Home</Link>
-        <Link to="/contact" style={{ textDecoration: "none", color: "#fff" }}>Contact</Link>
+        <Link to="/" style={{ textDecoration: "none", color: "#fff" }}>@2025ApnaBlog</Link>
       </footer>
 
       {/* Responsive CSS */}

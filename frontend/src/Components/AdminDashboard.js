@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // 👈 for redirect
-import api from "../api"; // your axios instance
+import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 export default function AdminDashboard() {
   const [pendingUsers, setPendingUsers] = useState([]);
@@ -36,8 +36,8 @@ export default function AdminDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // 👈 clear token (or sessionStorage)
-    navigate("/"); // 👈 redirect to landing page
+    localStorage.removeItem("token");
+    navigate("/");
   };
 
   useEffect(() => {
@@ -103,14 +103,12 @@ export default function AdminDashboard() {
 
       {/* Inline CSS */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
         .admin-dashboard {
-          font-family: 'Poppins', sans-serif;
+          font-family: 'Georgia, serif';
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background-color: #E8FFD7;
+          background: linear-gradient(135deg, #F4F4F9, #E8FFD7);
           color: #2E2E2E;
         }
 
@@ -121,16 +119,18 @@ export default function AdminDashboard() {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          font-family: 'Georgia, serif';
         }
 
         .logout-btn {
           background-color: #e74c3c;
           color: #fff;
           border: none;
-          border-radius: 6px;
-          padding: 0.5rem 1rem;
+          border-radius: 8px;
+          padding: 0.6rem 1.2rem;
           cursor: pointer;
           font-weight: 600;
+          font-family: 'Georgia, serif';
           transition: background 0.2s ease;
         }
         .logout-btn:hover {
@@ -140,23 +140,26 @@ export default function AdminDashboard() {
         .main-section {
           flex: 1;
           padding: 2rem;
+          max-width: 1100px;
+          margin: auto;
+          width: 100%;
         }
 
         h1 {
           margin: 0;
-          font-size: 1.8rem;
+          font-size: 2rem;
           font-weight: 700;
         }
 
         h2 {
           margin-bottom: 1.5rem;
-          font-size: 1.4rem;
-          font-weight: 600;
+          font-size: 1.6rem;
+          font-weight: 700;
           color: #3E5F44;
         }
 
         .empty {
-          font-size: 1rem;
+          font-size: 1.1rem;
           color: #5E936C;
         }
 
@@ -170,19 +173,19 @@ export default function AdminDashboard() {
           background: #fff;
           border-radius: 12px;
           overflow: hidden;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .user-table th, .user-table td {
-          padding: 0.75rem 1rem;
+          padding: 0.8rem 1rem;
           text-align: left;
-          font-size: 0.95rem;
+          font-size: 1rem;
           border-bottom: 1px solid #eee;
         }
 
         .user-table th {
           background-color: #93DA97;
-          font-weight: 600;
+          font-weight: 700;
         }
 
         .user-table tr:hover {
@@ -195,13 +198,14 @@ export default function AdminDashboard() {
         }
 
         .approve-btn, .reject-btn {
-          padding: 0.4rem 0.9rem;
+          padding: 0.5rem 1rem;
           border: none;
-          border-radius: 6px;
-          font-size: 0.85rem;
+          border-radius: 8px;
+          font-size: 0.95rem;
           cursor: pointer;
           transition: background 0.2s ease;
           font-weight: 600;
+          font-family: 'Georgia, serif';
         }
 
         .approve-btn {
@@ -225,16 +229,15 @@ export default function AdminDashboard() {
           color: #fff;
           padding: 1rem;
           text-align: center;
-          font-size: 0.85rem;
+          font-size: 0.9rem;
+          font-family: 'Georgia, serif';
         }
 
         @media (max-width: 768px) {
-          h1 { font-size: 1.4rem; }
-          h2 { font-size: 1.2rem; }
-          .user-table th, .user-table td {
-            font-size: 0.85rem;
-            padding: 0.6rem;
-          }
+          h1 { font-size: 1.6rem; }
+          h2 { font-size: 1.3rem; }
+          .user-table th, .user-table td { font-size: 0.9rem; padding: 0.5rem 0.8rem; }
+          .logout-btn { padding: 0.5rem 1rem; font-size: 0.9rem; }
         }
       `}</style>
     </div>
