@@ -243,48 +243,53 @@ export default function ReaderCommunity() {
           <p>No posts found.</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {filteredPosts.map((post) => (
-              <div
-                key={post.id}
-                style={{
-                  padding: "1rem",
-                  borderRadius: "10px",
-                  backgroundColor: "#fff",
-                  cursor: "pointer",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                  transition: "transform 0.2s",
-                }}
-                onClick={() => navigate(`/post/${post.id}`)}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform = "scale(1.02)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform = "scale(1)")
-                }
-              >
-                <h3 style={{ margin: 0, color: themeColors.textDark }}>
-                  {post.title}
-                </h3>
-                <p
-                  style={{
-                    fontSize: "0.9rem",
-                    color: "#555",
-                    marginTop: "0.3rem",
-                  }}
-                >
-                  by {post.authorUsername}
-                </p>
-                <p
-                  style={{
-                    fontSize: "0.85rem",
-                    color: "#777",
-                    marginTop: "0.3rem",
-                  }}
-                >
-                  Difficulty: {post.difficulty}
-                </p>
-              </div>
-            ))}
+            {filteredPosts.map((post) => {
+  const author =
+    post.author?.userName ||  // preferred, matches HomePage
+    post.user?.username ||    // fallback
+    post.authorUsername ||    // fallback
+    "Anonymous";             // default if nothing exists
+
+  return (
+    <div
+      key={post.id}
+      style={{
+        padding: "1rem",
+        borderRadius: "10px",
+        backgroundColor: "#fff",
+        cursor: "pointer",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        transition: "transform 0.2s",
+      }}
+      onClick={() => navigate(`/post/${post.id}`)}
+      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+    >
+      <h3 style={{ margin: 0, color: themeColors.textDark }}>
+        {post.title}
+      </h3>
+      <p
+        style={{
+          fontSize: "0.9rem",
+          color: "#555",
+          marginTop: "0.3rem",
+        }}
+      >
+        by {author}
+      </p>
+      <p
+        style={{
+          fontSize: "0.85rem",
+          color: "#777",
+          marginTop: "0.3rem",
+        }}
+      >
+        Difficulty: {post.difficulty}
+      </p>
+    </div>
+  );
+})}
+
           </div>
         )}
       </main>
