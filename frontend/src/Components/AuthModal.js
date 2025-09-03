@@ -9,7 +9,7 @@ const AuthModal = ({ show, onClose }) => {
     email: "",
     password: "",
     displayName: "",
-    requestedRole: "User", // default
+    requestedRole: "", // default
   });
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -21,45 +21,53 @@ const AuthModal = ({ show, onClose }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccessMsg("");
+  e.preventDefault();
+  setError("");
+  setSuccessMsg("");
 
-    try {
-      if (isRegister) {
-        await api.post("/Auth/register", formData);
-        // Show custom success message
-        setSuccessMsg(
-          "Registration successful! Your account has been sent for admin approval."
-        );
-        setIsRegister(false); // switch to login mode if desired
-      } else {
-        const res = await api.post("/Auth/login", {
-          email: formData.email,
-          password: formData.password,
-        });
-        localStorage.setItem("token", res.data.token);
-        navigate("/profile");
-        onClose();
-      }
-    } catch (err) {
-      console.error(err);
+  try {
+    if (isRegister) {
+      await api.post("/Auth/register", formData);
+      setSuccessMsg(
+        "Registration successful! Your account has been sent for admin approval."
+      );
+    } else {
+      const res = await api.post("/Auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
 
-      let message = "Something went wrong";
-
-      if (Array.isArray(err.response?.data)) {
-        message = err.response.data.map((e) => e.description).join(", ");
-      } else if (err.response?.data?.message) {
-        message = err.response.data.message;
-      } else if (typeof err.response?.data === "string") {
-        message = err.response.data;
-      } else {
-        message = err.message;
+      // Check if admin approved
+      if (!res.data.role) {
+        setError("Your account is pending admin approval.");
+        return;
       }
 
-      setError(message);
+      // Save user to localStorage
+      localStorage.setItem("user", JSON.stringify(res.data));
+
+      // Navigate based on role
+      if (res.data.role === "Editor") navigate("/editor-dashboard");
+      else navigate("/profile"); // normal user
+
+      onClose();
     }
-  };
+  } catch (err) {
+    console.error(err);
+    let message = "Something went wrong";
+    if (Array.isArray(err.response?.data)) {
+      message = err.response.data.map((e) => e.description).join(", ");
+    } else if (err.response?.data?.message) {
+      message = err.response.data.message;
+    } else if (typeof err.response?.data === "string") {
+      message = err.response.data;
+    } else {
+      message = err.message;
+    }
+    setError(message);
+  }
+};
+
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
