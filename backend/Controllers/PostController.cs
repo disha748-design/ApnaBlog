@@ -204,6 +204,17 @@ namespace BlogApi.Controllers
             if (post == null) return NotFound();
             return Ok(post);
         }
+        [Authorize]
+        [HttpPost("{id:guid}/like-toggle")]
+        public async Task<IActionResult> ToggleLike(Guid id)
+        {
+            var userId = GetUserId();
+            if (userId == null) return Unauthorized();
+
+            var (likesCount, userHasLiked) = await _svc.ToggleLikeAsync(id, userId);
+            return Ok(new { likesCount, userHasLiked });
+        }
+
 
 
     }

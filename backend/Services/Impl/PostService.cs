@@ -245,21 +245,6 @@ namespace BlogApi.Services.Impl
             return true;
         }
 
-
-        public async Task ToggleLikeAsync(Guid postId, string userId)
-        {
-            var existing = await _db.PostLikes.FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
-            if (existing != null)
-            {
-                _db.PostLikes.Remove(existing);
-            }
-            else
-            {
-                _db.PostLikes.Add(new PostLike { Id = Guid.NewGuid(), PostId = postId, UserId = userId });
-            }
-            await _db.SaveChangesAsync();
-        }
-
         public async Task AddViewAsync(Guid postId, string? userId, string? ip)
         {
             _db.PostViews.Add(new PostView { Id = Guid.NewGuid(), PostId = postId, UserId = userId, IpAddress = ip, ViewedAt = DateTime.UtcNow });
@@ -330,6 +315,36 @@ namespace BlogApi.Services.Impl
                 .Include(p => p.Views)
                 .FirstOrDefaultAsync(p => p.Id == postId);
         }
+        public async Task<(int likesCount, bool userHasLiked)> ToggleLikeAsync(Guid postId, string userId)
+        {
+            var post = await _db.Posts
+                                .Include(p => p.Likes)
+                                .FirstOrDefaultAsync(p => p.Id == postId);
+
+            if (post == null) throw new Exception("Post not found");
+
+            var existingLike = post.Likes.FirstOrDefault(l => l.UserId == userId);
+
+            if (existingLike != null)
+            {
+                _db.PostLikes.Remove(existingLike); // Use your PostLikes table/entity
+            }
+            else
+            {
+                _db.PostLikes.Add(new PostLike
+                {
+                    Id = Guid.NewGuid(),
+                    PostId = postId,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
+            await _db.SaveChangesAsync();
+
+            return (post.Likes.Count, existingLike == null); // updated count & current state
+        }
+
 
 
     }

@@ -22,14 +22,14 @@ export default function SinglePost() {
   const [loading, setLoading] = useState(true);
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
-  const [likeLoading, setLikeLoading] = useState(false);
-  const [liked, setLiked] = useState(false);
   const [speaking, setSpeaking] = useState(false);
   const [summary, setSummary] = useState("");
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const [liked, setLiked] = useState(false); // toggle like state
+  const [likesCount, setLikesCount] = useState(0); // local like count
   const dropdownRef = useRef(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
@@ -58,12 +58,11 @@ export default function SinglePost() {
     try {
       const res = await api.get(`/Posts/${id}`);
       setPost(res.data);
-
-      const commentsRes = await api.get(`/posts/${id}/Comments`);
-      setComments(commentsRes.data || []);
-
-      // check if user already liked
+      setLikesCount(res.data.likesCount || 0);
       setLiked(res.data.userHasLiked || false);
+
+      const commentsRes = await api.get(`/Posts/${id}/Comments`);
+      setComments(commentsRes.data || []);
     } catch (err) {
       console.error("Error fetching post or comments:", err);
     } finally {
@@ -83,29 +82,36 @@ export default function SinglePost() {
     }
   };
 
-  const handleLike = async () => {
-    setLikeLoading(true);
+  // **TOGGLE LIKE BUTTON**
+  const toggleLike = async () => {
+    if (!user) {
+      alert("Login required to like this post.");
+      navigate("/login");
+      return;
+    }
+
+    const prevLiked = liked;
+    const prevLikes = likesCount;
+
+    // Optimistic UI update
+    const newLiked = !prevLiked;
+    setLiked(newLiked);
+    setLikesCount(newLiked ? prevLikes + 1 : prevLikes - 1);
+
     try {
-      const res = await api.post(`/Posts/${id}/like`);
-      setPost((prev) => ({ ...prev, likesCount: res.data.likesCount }));
-      setLiked(res.data.userHasLiked);
+      await api.post(`/Posts/${id}/like-toggle`);
     } catch (err) {
-      if (err.response?.status === 401) {
-        alert("Login required to like this post.");
-        navigate("/login");
-      } else {
-        console.error(err);
-        alert("Failed to like post.");
-      }
-    } finally {
-      setLikeLoading(false);
+      console.error("Failed to toggle like:", err);
+      // revert on error
+      setLiked(prevLiked);
+      setLikesCount(prevLikes);
     }
   };
 
   const handleComment = async () => {
     if (!commentText.trim()) return;
     try {
-      const res = await api.post(`/posts/${id}/Comments`, { content: commentText });
+      const res = await api.post(`/Posts/${id}/Comments`, { content: commentText });
       setComments((prev) => [...prev, res.data]);
       setPost((prev) => ({
         ...prev,
@@ -202,9 +208,6 @@ export default function SinglePost() {
             {new Date(post.createdAt).toLocaleDateString()}
           </p>
 
-
-
-
           {/* Author Controls */}
           {isAuthor && (
             <div className="author-buttons">
@@ -238,33 +241,25 @@ export default function SinglePost() {
               <FaEye /> {post.viewsCount || 0}
             </span>
             <span title="Likes">
-              <FaHeart /> {post.likesCount || 0}
+              <FaHeart color="red" /> {likesCount}
             </span>
             <span title="Comments">
               <FaComment /> {post.commentsCount || 0}
             </span>
           </div>
 
-          {/* Like Button */}
-          <button
-            className="btn-icon"
-            onClick={handleLike}
-            disabled={likeLoading}
-            title="Like"
-          >
-            {likeLoading ? "…" : liked ? <FaHeart color="red" /> : <FaRegHeart />}
+          {/* LIKE BUTTON */}
+          <button className="btn-icon" onClick={toggleLike} title="Like">
+            {liked ? <FaHeart color="red" /> : <FaRegHeart />}
           </button>
 
-          {/* Comments Section */}
+          {/* COMMENTS SECTION */}
           <div className="comments-section">
             <h3>Comments</h3>
             {comments.length === 0 && <p>No comments yet.</p>}
             {comments.map((c) => (
               <div key={c.id || Math.random()} className="comment">
-                <strong>
-                  {c.authorName || c.authorUsername || c.user?.username || "Anonymous"}
-                </strong>
-                : {c.content || ""}
+                <strong>{c.authorName || "Anonymous"}</strong>: {c.content || ""}
                 <div className="comment-meta">
                   <small>{c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}</small>
                 </div>

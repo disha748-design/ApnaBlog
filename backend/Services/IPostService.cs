@@ -19,7 +19,7 @@ namespace BlogApi.Services
         Task<bool> RejectPostAsync(Guid postId, string editorId);
         Task<Post?> GetByIdAsync(Guid postId, string? currentUserId = null);
         Task<IEnumerable<Post>> GetPublishedAsync(int page = 1, int pageSize = 20);
-        Task ToggleLikeAsync(Guid postId, string userId);
+        Task<(int likesCount, bool userHasLiked)> ToggleLikeAsync(Guid postId, string userId);
         Task AddViewAsync(Guid postId, string? userId, string? ip);
 
 
