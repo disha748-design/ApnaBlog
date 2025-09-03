@@ -4717,23 +4717,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Indrani Kamat\\.nuget\\packages\\": {},
-    "D:\\VStudio\\vs3\\NuGetPackages": {}
+    "C:\\Users\\disha\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Indrani Kamat\\Desktop\\Project@internship\\APNABLOG@proj\\APNABLOG@proj\\BlogApi.csproj",
+      "projectUniqueName": "C:\\Users\\disha\\ApnaBlog\\backend\\BlogApi.csproj",
       "projectName": "BlogApi",
-      "projectPath": "C:\\Users\\Indrani Kamat\\Desktop\\Project@internship\\APNABLOG@proj\\APNABLOG@proj\\BlogApi.csproj",
-      "packagesPath": "C:\\Users\\Indrani Kamat\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Indrani Kamat\\Desktop\\Project@internship\\APNABLOG@proj\\APNABLOG@proj\\obj\\",
+      "projectPath": "C:\\Users\\disha\\ApnaBlog\\backend\\BlogApi.csproj",
+      "packagesPath": "C:\\Users\\disha\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\disha\\ApnaBlog\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "D:\\VStudio\\vs3\\NuGetPackages"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Indrani Kamat\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\disha\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -4814,7 +4814,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

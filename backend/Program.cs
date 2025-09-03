@@ -15,6 +15,7 @@ using BlogApi.Repositories;
 using BlogApi.Repositories.Impl;
 using BlogApi.Services;
 using BlogApi.Services.Impl;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -147,8 +148,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseStaticFiles();
+
+// ✅ Enable static files for /uploads folder
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/uploads"
+});
 app.UseRouting();
 app.UseCors("AllowReactApp");
 app.UseAuthentication();
