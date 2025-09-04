@@ -22,6 +22,9 @@ namespace BlogApi.Services
         Task<(int likesCount, bool userHasLiked)> ToggleLikeAsync(Guid postId, string userId);
         Task AddViewAsync(Guid postId, string? userId, string? ip);
 
+        Task<IEnumerable<Post>> GetByUserIdAsync(string userId);
+
+
 
         Task<CommentResponseDto> AddCommentAsync(Guid postId, string userId, string content, Guid? parentCommentId);
         Task<IEnumerable<CommentResponseDto>> GetCommentsAsync(Guid postId);

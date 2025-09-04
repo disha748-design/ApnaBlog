@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "./api"; // Axios instance
-import { FaSun, FaMoon, FaUser, FaBars, FaTimes, FaSearch } from "react-icons/fa";
+import { FaSun, FaMoon, FaUser, FaBars, FaTimes, FaSearch, FaRegEdit } from "react-icons/fa";
 import PenPopup from "./Components/PenPopup";
 import { AuthContext } from "./AuthContext"; // ✅ Use AuthContext
 
@@ -204,6 +204,20 @@ export default function HomePage() {
               >
                 <FaUser /> Profile
               </div>
+              {/* Drafts */}
+{user && (
+  <div
+    style={{ padding: "0.7rem 1rem", cursor: "pointer", borderBottom: "1px solid #ccc" }}
+    onClick={() => {
+      navigate("/my-posts"); // navigate to MyPosts.js
+      setMenuOpen(false);
+    }}
+  >
+   <FaRegEdit /> 
+ Drafts
+  </div>
+)}
+
 
               {/* Theme toggle */}
               <div

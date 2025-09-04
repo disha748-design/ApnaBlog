@@ -214,6 +214,27 @@ namespace BlogApi.Controllers
             var (likesCount, userHasLiked) = await _svc.ToggleLikeAsync(id, userId);
             return Ok(new { likesCount, userHasLiked });
         }
+[Authorize]
+[HttpGet("my-posts")]
+public async Task<IActionResult> GetMyPosts()
+{
+    var userId = GetUserId();
+    if (userId == null) return Unauthorized();
+
+    var posts = await _svc.GetByUserIdAsync(userId);
+
+    var result = posts.Select(p => new
+    {
+        p.Id,
+        p.Title,
+        p.Content,
+        p.Status,
+        p.CreatedAt,
+        Images = p.Images.Select(img => new { img.Url, img.FileName }).ToList()
+    });
+
+    return Ok(result);
+}
 
 
 

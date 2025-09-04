@@ -154,6 +154,10 @@ namespace BlogApi.Services.Impl
         }
         public async Task SubmitEditForApprovalAsync(Post post, PostEditDto dto)
         {
+
+             post.Status = PostStatus.PendingApproval;   // mark original post as pending
+    post.UpdatedAt = DateTime.UtcNow;
+    _db.Posts.Update(post);
             var pendingEdit = new PendingPost
             {
                 OriginalPostId = post.Id,
@@ -344,6 +348,17 @@ namespace BlogApi.Services.Impl
 
             return (post.Likes.Count, existingLike == null); // updated count & current state
         }
+
+        public async Task<IEnumerable<Post>> GetByUserIdAsync(string userId)
+{
+    return await _postRepo.Query()
+        .Where(p => p.AuthorId == userId)
+        .Include(p => p.Images)
+        .Include(p => p.Author)
+        .OrderByDescending(p => p.CreatedAt)
+        .ToListAsync();
+}
+
 
 
 

@@ -19,6 +19,7 @@ import EditorDashboard from "./Components/EditorDashboard";
 import EditorEditPost from "./Components/EditorEditPost";
 import TopicPage from "./Components/TopicPage";
 import AuthorPage from "./Components/AuthorPage";
+import MyPosts from "./Components/MyPosts";
 
 // Protected route for logged-in users
 export const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -83,6 +84,8 @@ function App() {
         <Route path="/topic/:topic" element={<TopicPage />} />
         <Route path="/author/:author" element={<AuthorPage />} />
         
+<Route path="/my-posts" element={<MyPosts />} />
+
 
 
         {/* User Profile */}
