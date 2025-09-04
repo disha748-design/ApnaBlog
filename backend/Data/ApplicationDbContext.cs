@@ -57,7 +57,7 @@ namespace BlogApi.Data
                 .HasOne(pl => pl.Post)
                 .WithMany(p => p.Likes)
                 .HasForeignKey(pl => pl.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // PostLike → User
             // Restrict deleting a user if they have liked posts
@@ -79,7 +79,7 @@ namespace BlogApi.Data
                 .HasOne(pv => pv.Post)
                 .WithMany(p => p.Views)
                 .HasForeignKey(pv => pv.PostId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // PostView → User
             builder.Entity<PostView>()
