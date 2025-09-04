@@ -292,15 +292,17 @@ export default function SinglePost() {
               </div>
 
               {/* ✅ Suggest Replies button: show only if commenter is NOT the post author */}
-              {c.authorId !== post.authorId && (
-                <button
-                  className="btn-primary btn-small"
-                  disabled={suggestingId === c.id}
-                  onClick={() => handleSuggestReplies(c.id, c.content)}
-                >
-                  💡 {suggestingId === c.id ? "Loading..." : "Suggest"}
-                </button>
-              )}
+          {loggedInUserId === post.authorId && c.authorId !== loggedInUserId && (
+           <button
+            className="btn-suggest"
+            disabled={suggestingId === c.id}
+            onClick={() => handleSuggestReplies(c.id, c.content)}
+            title="Suggest Reply"
+          >
+            💡
+          </button>
+          )}
+
 
               {/* ✅ Suggestions list */}
               {replySuggestions[c.id] && replySuggestions[c.id].length > 0 && (
