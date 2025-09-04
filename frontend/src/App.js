@@ -17,6 +17,8 @@ import AdminDashboard from "./Components/AdminDashboard";
 import AdminLogin from "./Components/AdminLogin";
 import EditorDashboard from "./Components/EditorDashboard";
 import EditorEditPost from "./Components/EditorEditPost";
+import TopicPage from "./Components/TopicPage";
+import AuthorPage from "./Components/AuthorPage";
 
 // Protected route for logged-in users
 export const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -78,6 +80,9 @@ function App() {
 
         
         <Route path="/edit-post/:id" element={<EditPost />} />
+        <Route path="/topic/:topic" element={<TopicPage />} />
+        <Route path="/author/:author" element={<AuthorPage />} />
+        
 
 
         {/* User Profile */}
@@ -97,6 +102,7 @@ function App() {
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/reader-community" element={<ReaderCommunity />} />
+        
 
         {/* Admin Login */}
         <Route path="/admin-login" element={<AdminLogin />} />
