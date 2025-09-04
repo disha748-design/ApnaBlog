@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 import { AuthContext } from "../AuthContext";
-import { FaEdit, FaTrash, FaSun, FaMoon, FaBars, FaTimes as FaTimesIcon } from "react-icons/fa";
+import { FaEdit, FaTrash, FaBars, FaTimes as FaTimesIcon } from "react-icons/fa";
 
 export default function EditorAll() {
   const navigate = useNavigate();
@@ -11,18 +11,17 @@ export default function EditorAll() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [mode, setMode] = useState("light");
   const [menuOpen, setMenuOpen] = useState(false);
 
   const backendBaseUrl = "http://localhost:5096";
 
   const themeColors = {
-    headerFooterBg: mode === "light" ? "#043d1eff" : "#1a1a1a",
-    mainBg: mode === "light" ? "linear-gradient(135deg, #F4F4F9, #E8FFD7)" : "#121212",
-    cardBg: mode === "light" ? "#FFFFFF" : "#1E1E1E",
-    buttonBg: "#1d7c05ff",
+    headerFooterBg: "#043d1eff",
+    mainBg: "linear-gradient(135deg, #F4F4F9, #E8FFD7)",
+    cardBg: "#FFFFFF",
+    buttonBg: "#5E936C",
     buttonText: "#fff",
-    text: mode === "light" ? "#1C1C1C" : "#EEE",
+    text: "#1C1C1C",
   };
 
   const fetchPosts = async () => {
@@ -47,21 +46,19 @@ export default function EditorAll() {
   };
 
   const handleDelete = async (id) => {
-  if (!window.confirm("Are you sure you want to delete this post?")) return;
-  setActionLoading(true);
-  try {
-    // Call the same endpoint as reject but for delete
-    await api.post(`/Posts/${id}/reject`, { reason: "Deleted by editor" });
-    alert("Post deleted.");
-    setPosts((prev) => prev.filter((p) => p.id !== id));
-  } catch (err) {
-    console.error("Failed to delete post:", err);
-    alert("Failed to delete post.");
-  } finally {
-    setActionLoading(false);
-  }
-};
-
+    if (!window.confirm("Are you sure you want to delete this post?")) return;
+    setActionLoading(true);
+    try {
+      await api.post(`/Posts/${id}/reject`, { reason: "Deleted by editor" });
+      alert("Post deleted.");
+      setPosts((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error("Failed to delete post:", err);
+      alert("Failed to delete post.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   return (
     <div
@@ -80,7 +77,8 @@ export default function EditorAll() {
           justifyContent: "space-between",
           alignItems: "center",
           padding: "1rem 2rem",
-          fontFamily: "Georgia, serif",fontSize: "1.5rem",
+          fontFamily: "Georgia, serif",
+          fontSize: "1.5rem",
           backgroundColor: themeColors.headerFooterBg,
           color: "#fff",
           flexWrap: "wrap",
@@ -95,15 +93,9 @@ export default function EditorAll() {
 
         <div className="desktop-menu" style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <button
-            onClick={() => setMode(mode === "light" ? "dark" : "light")}
-            style={{ background: "none", border: "none", color: "#fff", fontSize: "1.2rem" }}
-          >
-            {mode === "light" ? <FaSun /> : <FaMoon />}
-          </button>
-          <button
             onClick={() => navigate("/editor-dashboard")}
             style={{
-              backgroundColor: "#3E5F44",
+              backgroundColor: themeColors.buttonBg,
               color: "#fff",
               padding: "10px 16px",
               borderRadius: "8px",
@@ -112,15 +104,6 @@ export default function EditorAll() {
             }}
           >
             Dashboard
-          </button>
-          <button
-            onClick={() => {
-              setUser(null);
-              navigate("/login");
-            }}
-            style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}
-          >
-            Logout
           </button>
         </div>
 
@@ -146,15 +129,9 @@ export default function EditorAll() {
           }}
         >
           <button
-            onClick={() => setMode(mode === "light" ? "dark" : "light")}
-            style={{ background: "none", border: "none", color: "#fff", fontSize: "1.2rem" }}
-          >
-            {mode === "light" ? <FaSun /> : <FaMoon />}
-          </button>
-          <button
             onClick={() => navigate("/editor-dashboard")}
             style={{
-              backgroundColor: "#3E5F44",
+              backgroundColor: themeColors.buttonBg,
               color: "#fff",
               padding: "10px 16px",
               borderRadius: "8px",
@@ -163,15 +140,6 @@ export default function EditorAll() {
             }}
           >
             Dashboard
-          </button>
-          <button
-            onClick={() => {
-              setUser(null);
-              navigate("/login");
-            }}
-            style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}
-          >
-            Logout
           </button>
         </div>
       )}

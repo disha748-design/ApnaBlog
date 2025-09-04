@@ -6,8 +6,6 @@ import {
   FaCheck,
   FaTimes,
   FaPen,
-  FaSun,
-  FaMoon,
   FaBars,
   FaTimes as FaTimesIcon,
   FaTrash,
@@ -19,7 +17,6 @@ const EditorDashboard = () => {
 
   const [pendingPosts, setPendingPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState("light");
   const [menuOpen, setMenuOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -72,19 +69,27 @@ const EditorDashboard = () => {
   };
 
   const themeColors = {
-    headerFooterBg: mode === "light" ? "#043d1eff" : "#1a1a1a",
-    mainBg: mode === "light" ? "linear-gradient(135deg, #F4F4F9, #E8FFD7)" : "#121212",
-    cardBg: mode === "light" ? "#FFFFFF" : "#1E1E1E",
+    headerFooterBg: "#043d1eff",
+    mainBg: "linear-gradient(135deg, #F4F4F9, #E8FFD7)",
+    cardBg: "#FFFFFF",
     buttonApprove: "#4CAF50",
     buttonReject: "#E63946",
-    text: mode === "light" ? "#1C1C1C" : "#EEE",
+    buttonLogout: "#5E936C", // muted green
+    text: "#1C1C1C",
   };
 
   const stripHtml = (html) => html.replace(/<[^>]+>/g, "");
 
   return (
-    <div style={{ fontFamily: "Georgia, serif", minHeight: "100vh", display: "flex", flexDirection: "column", background: themeColors.mainBg }}>
-      
+    <div
+      style={{
+        fontFamily: "Georgia, serif",
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        background: themeColors.mainBg,
+      }}
+    >
       {/* Header */}
       <header
         style={{
@@ -107,146 +112,211 @@ const EditorDashboard = () => {
         {/* Desktop Menu */}
         <div className="desktop-menu" style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <button
-            onClick={() => setMode(mode === "light" ? "dark" : "light")}
-            style={{ background: "none", border: "none", color: "#fff", fontSize: "1.2rem", cursor: "pointer" }}
-          >
-            {mode === "light" ? <FaSun /> : <FaMoon />}
-          </button>
-
-          <button
             onClick={() => navigate("/editor-all")}
             style={{
-              backgroundColor: "#3E5F44",
+              backgroundColor: themeColors.buttonLogout,
               color: "#fff",
-              padding: "8px 14px",
+              padding: "6px 12px",
               borderRadius: "8px",
               border: "none",
               cursor: "pointer",
             }}
           >
-            Go to All Posts
+            All Posts
           </button>
 
           <button
-            onClick={() => { setUser(null); navigate("/login"); }}
-            style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}
+            onClick={() => {
+              setUser(null);
+              navigate("/login");
+            }}
+            style={{
+              backgroundColor: themeColors.buttonLogout,
+              color: "#fff",
+              padding: "6px 12px",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer",
+            }}
           >
             Logout
           </button>
         </div>
 
-        {/* Hamburger Menu */}
+        {/* Hamburger Button */}
         <button
           className="hamburger"
           onClick={() => setMenuOpen(!menuOpen)}
-          style={{ background: "none", border: "none", color: "#fff", fontSize: "1.8rem", cursor: "pointer", display: "none" }}
+          style={{
+            background: "none",
+            border: "none",
+            color: "#fff",
+            fontSize: "1.8rem",
+            cursor: "pointer",
+            display: "none",
+          }}
         >
           {menuOpen ? <FaTimesIcon /> : <FaBars />}
         </button>
       </header>
 
       {/* Mobile Menu */}
-      {menuOpen && (
-        <div
-          className="mobile-menu"
+      <div
+        className={`mobile-menu ${menuOpen ? "open" : ""}`}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.8rem",
+          padding: menuOpen ? "1rem 1.5rem" : "0 1.5rem",
+          backgroundColor: themeColors.headerFooterBg,
+          overflow: "hidden",
+          maxHeight: menuOpen ? "500px" : "0",
+          transition: "max-height 0.4s ease, padding 0.4s ease",
+        }}
+      >
+        <button
+          onClick={() => {
+            navigate("/editor-all");
+            setMenuOpen(false);
+          }}
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            padding: "1rem 1.5rem",
-            backgroundColor: themeColors.headerFooterBg,
+            backgroundColor: themeColors.buttonLogout,
+            color: "#fff",
+            padding: "6px 12px",
+            borderRadius: "8px",
+            border: "none",
+            cursor: "pointer",
           }}
         >
-          <button
-            onClick={() => setMode(mode === "light" ? "dark" : "light")}
-            style={{ background: "none", border: "none", color: "#fff", fontSize: "1.2rem", cursor: "pointer" }}
-          >
-            {mode === "light" ? <FaSun /> : <FaMoon />}
-          </button>
+          All Posts
+        </button>
 
-          <button
-            onClick={() => navigate("/editor-all")}
-            style={{
-              backgroundColor: "#3E5F44",
-              color: "#fff",
-              padding: "8px 14px",
-              borderRadius: "8px",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Go to All Posts
-          </button>
-
-          <button
-            onClick={() => { setUser(null); navigate("/login"); }}
-            style={{ background: "none", border: "none", color: "#fff", cursor: "pointer" }}
-          >
-            Logout
-          </button>
-        </div>
-      )}
+        <button
+          onClick={() => {
+            setUser(null);
+            navigate("/login");
+            setMenuOpen(false);
+          }}
+          style={{
+            backgroundColor: themeColors.buttonLogout,
+            color: "#fff",
+            padding: "6px 12px",
+            borderRadius: "8px",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Logout
+        </button>
+      </div>
 
       {/* Main Content */}
-      <main style={{ display: "flex", padding: "2rem", gap: "2rem", flexWrap: "wrap", flex: 1 }}>
-        <div style={{ flex: 1, minWidth: "300px" }}>
-          {loading ? (
-            <div style={{ textAlign: "center", color: "#555" }}>🌱 Loading pending posts…</div>
-          ) : pendingPosts.length === 0 ? (
-            <p style={{ textAlign: "center", color: themeColors.text }}>No pending posts.</p>
-          ) : (
-            pendingPosts.map((post) => (
-              <div
-                key={post.id}
-                style={{
-                  background: themeColors.cardBg,
-                  padding: "1rem",
-                  marginBottom: "1rem",
-                  borderRadius: "12px",
-                  boxShadow: "0 6px 16px rgba(0,0,0,0.1)",
-                }}
-              >
-                <h3 style={{ color: themeColors.text }}>{post.title}</h3>
-                <div style={{ color: "#555", margin: "0.5rem 0" }}>{stripHtml(post.content).substring(0, 120)}...</div>
-                <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
-                  <button
-                    onClick={() => approvePost(post.id)}
-                    style={{ background: themeColors.buttonApprove, color: "#fff", border: "none", padding: "0.5rem 1rem", borderRadius: "8px", cursor: "pointer" }}
-                  >
-                    Approve <FaCheck />
-                  </button>
-                  <button
-                    onClick={() => rejectPost(post.id)}
-                    style={{ background: themeColors.buttonReject, color: "#fff", border: "none", padding: "0.5rem 1rem", borderRadius: "8px", cursor: "pointer" }}
-                  >
-                    Reject <FaTimes />
-                  </button>
-                  <button
-                    onClick={() => navigate(`/editor-edit/${post.id}`)}
-                    style={{ background: "#F4A261", color: "#fff", border: "none", padding: "0.5rem 1rem", borderRadius: "8px", cursor: "pointer" }}
-                  >
-                    Edit <FaPen />
-                  </button>
-                  <button
-                    onClick={() => deletePost(post.id)}
-                    disabled={actionLoading}
-                    style={{ background: "#E63946", color: "#fff", border: "none", padding: "0.5rem 1rem", borderRadius: "8px", cursor: "pointer" }}
-                  >
-                    Delete <FaTrash />
-                  </button>
-                </div>
+      <main style={{ display: "flex", flexDirection: "column", padding: "2rem", gap: "1rem", flex: 1 }}>
+        {loading ? (
+          <div style={{ textAlign: "center", color: "#555" }}>🌱 Loading pending posts…</div>
+        ) : pendingPosts.length === 0 ? (
+          <p style={{ textAlign: "center", color: themeColors.text }}>No pending posts.</p>
+        ) : (
+          pendingPosts.map((post) => (
+            <div
+              key={post.id}
+              style={{
+                background: themeColors.cardBg,
+                padding: "1rem",
+                borderRadius: "12px",
+                boxShadow: "0 6px 16px rgba(0,0,0,0.1)",
+              }}
+            >
+              <h3 style={{ color: themeColors.text }}>{post.title}</h3>
+              <p style={{ color: "#555", margin: "0.5rem 0" }}>
+                {stripHtml(post.content).substring(0, 120)}...
+              </p>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.75rem" }}>
+                <button
+                  onClick={() => approvePost(post.id)}
+                  style={{
+                    background: themeColors.buttonApprove,
+                    color: "#fff",
+                    border: "none",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                  }}
+                >
+                  <FaCheck /> Approve
+                </button>
+                <button
+                  onClick={() => rejectPost(post.id)}
+                  style={{
+                    background: themeColors.buttonReject,
+                    color: "#fff",
+                    border: "none",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                  }}
+                >
+                  <FaTimes /> Reject
+                </button>
+                <button
+                  onClick={() => navigate(`/editor-edit/${post.id}`)}
+                  style={{
+                    background: "#F4A261",
+                    color: "#fff",
+                    border: "none",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                  }}
+                >
+                  <FaPen /> Edit
+                </button>
+                <button
+                  onClick={() => deletePost(post.id)}
+                  disabled={actionLoading}
+                  style={{
+                    background: "#E63946",
+                    color: "#fff",
+                    border: "none",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                  }}
+                >
+                  <FaTrash /> Delete
+                </button>
               </div>
-            ))
-          )}
-        </div>
+            </div>
+          ))
+        )}
       </main>
 
       {/* Footer */}
-      <footer style={{ backgroundColor: themeColors.headerFooterBg, color: "#fff", textAlign: "center", padding: "1rem", marginTop: "auto" }}>
+      <footer
+        style={{
+          backgroundColor: themeColors.headerFooterBg,
+          color: "#fff",
+          textAlign: "center",
+          padding: "1rem",
+          marginTop: "auto",
+        }}
+      >
         © 2025 ApnaBlog Editor Dashboard
       </footer>
 
-      {/* Responsive styles */}
+      {/* Responsive CSS */}
       <style>
         {`
           @media (max-width: 768px) {
