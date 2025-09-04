@@ -32,41 +32,68 @@ public async Task<IActionResult> AdminLogin([FromBody] AdminLoginDto dto)
         role = "Admin"
     });
 }
+[HttpGet("rsa-public")]
+[AllowAnonymous]
+public IActionResult GetRsaPublicKey([FromServices] IRsaService rsa)
+{
+    return Ok(new { publicKey = rsa.GetPublicKey() });
+}
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
-        {
-            var r = await _svc.RegisterAsync(dto);
-            if (!r.Succeeded) return BadRequest(r.Errors);
-            return Ok(new { message = "Registered. Wait for admin approval." });
-        }
+[HttpPost("register")]
+[AllowAnonymous]
+public async Task<IActionResult> Register([FromBody] RegisterDto dto, [FromServices] IRsaService rsaService)
+{
+    try
+    {
+        // Decrypt only once here
+        dto.Password = rsaService.Decrypt(dto.Password);
+        Console.WriteLine("Decrypted password: " + dto.Password);
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(new { message = "Password decryption failed", error = ex.Message, received = dto.Password });
+    }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
-        {
-            var user = await _svc.LoginWithUserAsync(dto); // or fetch user from _userManager
-            if (user == null || !user.IsApproved)
-                return Unauthorized(new { message = "Invalid credentials or not approved." });
+    // Pass plain password to the service
+    var r = await _svc.RegisterAsync(dto);
 
-            var userRoles = await _svc.GetRolesAsync(user); // get roles
+    if (!r.Succeeded) 
+        return BadRequest(r.Errors);
 
-            return Ok(new
-            {
-                id = user.Id,
-                email = user.Email,
-                displayName = user.DisplayName,
-                role = userRoles.FirstOrDefault(), // <-- send role
-                isApproved = user.IsApproved
-            });
-        }
+    return Ok(new { message = "Registered. Wait for admin approval." });
+}
 
 
-        [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
+[HttpPost("login")]
+[AllowAnonymous]
+public async Task<IActionResult> Login([FromBody] LoginDto dto)
+{
+    var user = await _svc.LoginWithUserAsync(dto);
+
+    if (user == null || !user.IsApproved)
+        return Unauthorized(new { message = "Invalid credentials or not approved." });
+
+    var userRoles = await _svc.GetRolesAsync(user);
+
+    return Ok(new
+    {
+        id = user.Id,
+        email = user.Email,
+        displayName = user.DisplayName,
+        role = userRoles.FirstOrDefault(),
+        isApproved = user.IsApproved
+    });
+}
+
+
+     [Authorize] 
+      [HttpPost("logout")]
+      public async Task<IActionResult> Logout()
         {
             await _svc.LogoutAsync();
             return Ok();
         }
+
+
     }
 }

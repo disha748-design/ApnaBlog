@@ -62,6 +62,8 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddSingleton<IRsaService, RsaService>();
+
 
 // ----- AI Services -----
 builder.Services.Configure<HuggingFaceSetting>(
@@ -151,6 +153,7 @@ if (app.Environment.IsDevelopment())
 app.UseStaticFiles();
 
 // ✅ Enable static files for /uploads folder
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
