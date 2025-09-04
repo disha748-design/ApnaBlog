@@ -12,6 +12,8 @@ import {
   FaRegHeart,
   FaComment,
   FaEye,
+  FaHeadphones,
+  FaMagic,
 } from "react-icons/fa";
 import "./SinglePost.css";
 
@@ -230,6 +232,19 @@ export default function SinglePost() {
             {new Date(post.createdAt).toLocaleDateString()}
           </p>
 
+          {/* POST STATS BELOW AUTHOR */}
+          <div className="post-stats">
+            <span title="Views">
+              <FaEye /> {post.viewsCount || 0}
+            </span>
+            <span title="Likes">
+              <FaHeart color="red" /> {likesCount}
+            </span>
+            <span title="Comments">
+              <FaComment /> {post.commentsCount || 0}
+            </span>
+          </div>
+
           {/* Author Controls */}
           {isAuthor && (
             <div className="author-buttons">
@@ -260,103 +275,82 @@ export default function SinglePost() {
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
 
-          {/* STATS */}
-          <div className="post-stats">
-            <span title="Views">
-              <FaEye /> {post.viewsCount || 0}
-            </span>
-            <span title="Likes">
-              <FaHeart color="red" /> {likesCount}
-            </span>
-            <span title="Comments">
-              <FaComment /> {post.commentsCount || 0}
-            </span>
+          {/* LIKE & HEADPHONE SECTION */}
+          <div className="action-icons">
+            <button className="btn-icon" onClick={toggleLike} title="Like">
+              {liked ? <FaHeart color="red" /> : <FaRegHeart />}
+            </button>
+            <button className="btn-icon" onClick={handleSpeak} title="Read Aloud">
+              <FaHeadphones />
+            </button>
           </div>
 
-          {/* LIKE BUTTON */}
-          <button className="btn-icon" onClick={toggleLike} title="Like">
-            {liked ? <FaHeart color="red" /> : <FaRegHeart />}
-          </button>
-
-          {/* COMMENTS SECTION */}
-          <div className="comments-section">
-          <h3>Comments</h3>
-          {comments.length === 0 && <p>No comments yet.</p>}
-          {comments.map((c) => (
-            <div key={c.id} className="comment">
-              <strong>{c.authorName || "Anonymous"}</strong>: {c.content}
-              <div className="comment-meta">
-                <small>
-                  {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
-                </small>
-              </div>
-
-              {/* ✅ Suggest Replies button: show only if commenter is NOT the post author */}
-          {loggedInUserId === post.authorId && c.authorId !== loggedInUserId && (
-           <button
-            className="btn-suggest"
-            disabled={suggestingId === c.id}
-            onClick={() => handleSuggestReplies(c.id, c.content)}
-            title="Suggest Reply"
-          >
-            💡
-          </button>
-          )}
-
-
-              {/* ✅ Suggestions list */}
-              {replySuggestions[c.id] && replySuggestions[c.id].length > 0 && (
-                <div className="suggestions-list">
-                  {replySuggestions[c.id].map((s, idx) => {
-                    const cleaned = s
-                      .replace(/^\d+[\).\s"]+/, "")
-                      .replace(/^"+|"+$/g, "")
-                      .trim();
-                    return (
-                      <div
-                        key={idx}
-                        className="suggestion-item"
-                        onClick={() => setCommentText(cleaned)}
-                      >
-                        {cleaned}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          ))}
-
-          <textarea
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Write a comment..."
-            className="comment-input"
-          />
-          <button className="btn-primary" onClick={handleComment}>
-            Post Comment
-          </button>
-        </div>
-
-        </div>
-
-        <div className="post-right">
-          <div className="side-box">
-            <p>✨ Generate a quick summary!</p>
+          {/* SUMMARY GENERATOR BUTTON WITH WAND EFFECT */}
+          <div className="summary-section">
             <button
-              className="btn-primary"
+              className={`btn-wand ${summaryLoading ? "loading" : ""}`}
               onClick={handleGenerateSummary}
               disabled={summaryLoading}
             >
-              {summaryLoading ? "Generating..." : "Generate Summary"}
+              {summaryLoading ? "Generating..." : "✨ Generate Summary"}
             </button>
             {summary && <div className="summary-box">{summary}</div>}
           </div>
 
-          <div className="side-box">
-            <p>🎧 Read aloud!</p>
-            <button className="btn-secondary" onClick={handleSpeak}>
-              {speaking ? "Stop Reading" : "Read Aloud"}
+          {/* COMMENTS SECTION */}
+          <div className="comments-section">
+            <h3>Comments</h3>
+            {comments.length === 0 && <p>No comments yet.</p>}
+            {comments.map((c) => (
+              <div key={c.id} className="comment">
+                <strong>{c.authorName || "Anonymous"}</strong>: {c.content}
+                <div className="comment-meta">
+                  <small>
+                    {c.createdAt ? new Date(c.createdAt).toLocaleString() : ""}
+                  </small>
+                </div>
+
+                {loggedInUserId === post.authorId && c.authorId !== loggedInUserId && (
+                  <button
+                    className="btn-suggest"
+                    disabled={suggestingId === c.id}
+                    onClick={() => handleSuggestReplies(c.id, c.content)}
+                    title="Suggest Reply"
+                  >
+                    💡
+                  </button>
+                )}
+
+                {replySuggestions[c.id] && replySuggestions[c.id].length > 0 && (
+                  <div className="suggestions-list">
+                    {replySuggestions[c.id].map((s, idx) => {
+                      const cleaned = s
+                        .replace(/^\d+[\).\s"]+/, "")
+                        .replace(/^"+|"+$/g, "")
+                        .trim();
+                      return (
+                        <div
+                          key={idx}
+                          className="suggestion-item"
+                          onClick={() => setCommentText(cleaned)}
+                        >
+                          {cleaned}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))}
+
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Write a comment..."
+              className="comment-input"
+            />
+            <button className="btn-primary" onClick={handleComment}>
+              Post Comment
             </button>
           </div>
         </div>

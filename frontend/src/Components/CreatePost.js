@@ -17,6 +17,7 @@ export default function CreatePost() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [imageSuggestions, setImageSuggestions] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
+  const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
 
   const themeColors = {
     headerFooterBg: "#043d1eff",
@@ -118,21 +119,30 @@ export default function CreatePost() {
   };
 
   const generateTitle = async () => {
-    try {
-      const contentText = blocks.filter((b) => b.blockType === "text").map((b) => b.textContent).join("\n\n");
-      if (!contentText.trim()) return alert("Write some content first to generate a title.");
-      const res = await api.post("/Title/generate", { content: contentText });
-      const data = res.data;
-      if (data.title) {
-        let cleanTitle = data.title.replace(/^["']|["']$/g, "").trim()
-          .replace(/^here is (a )?(potential )?blog title( for the content provided)?:\s*/i, "");
-        setTitle(cleanTitle);
-      } else alert("AI did not return a valid title.");
-    } catch (err) {
-      console.error("Error generating title:", err);
-      alert("Failed to generate title.");
-    }
-  };
+  const contentText = blocks
+    .filter(b => b.blockType === "text")
+    .map(b => b.textContent)
+    .join("\n\n");
+
+  if (!contentText.trim()) return alert("Write some content first to generate a title.");
+
+  setIsGeneratingTitle(true);
+  try {
+    const res = await api.post("/Title/generate", { content: contentText });
+    const data = res.data;
+    if (data.title) {
+      let cleanTitle = data.title.replace(/^["']|["']$/g, "").trim()
+        .replace(/^here is (a )?(potential )?blog title( for the content provided)?:\s*/i, "");
+      setTitle(cleanTitle);
+    } else alert("AI did not return a valid title.");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to generate title.");
+  } finally {
+    setIsGeneratingTitle(false);
+  }
+};
+
 
   const fetchImageSuggestions = async () => {
     const contentText = blocks.filter((b) => b.blockType === "text").map((b) => b.textContent).join(" ");
@@ -166,10 +176,21 @@ export default function CreatePost() {
           <h1 style={{ fontSize: "2rem", textAlign: "center", color: themeColors.text }}>Create a New Post</h1>
 
           {/* Title Input + AI Title */}
-          <div className="title-row" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-            <input type="text" placeholder="Post Title" value={title} onChange={(e) => setTitle(e.target.value)} style={{ flex: 1, padding: "10px", borderRadius: "8px", border: `1px solid ${themeColors.buttonPrimary}` }} />
-            <button onClick={generateTitle} className="magic-button"><FaMagic /> AI Title</button>
-          </div>
+<div className="title-row" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+  <input
+    type="text"
+    placeholder="Post Title"
+    value={title}
+    onChange={(e) => setTitle(e.target.value)}
+    style={{ flex: 1, padding: "10px", borderRadius: "8px", border: `1px solid ${themeColors.buttonPrimary}` }}
+  />
+
+  <button
+    onClick={generateTitle}
+    className={`btn-wand ${isGeneratingTitle ? "loading" : ""}`}
+  ><FaMagic /> {isGeneratingTitle ? "Fetching..." : "AI Title"}
+  </button>
+</div>
 
           {/* Content Blocks */}
           {blocks.map((block, idx) => (
@@ -183,12 +204,22 @@ export default function CreatePost() {
           ))}
 
           {/* Buttons Row */}
-          <div className="content-buttons" style={{ display: "flex", gap: "12px", justifyContent: "space-between", flexWrap: "wrap" }}>
-            <button onClick={handleAddBlock} style={{ flex: 1, padding: "12px", borderRadius: "8px", backgroundColor: themeColors.buttonPrimary, color: themeColors.buttonText, fontWeight: "bold", cursor: "pointer" }}>+ Add Block</button>
-            <button onClick={fetchImageSuggestions} disabled={loadingImages} className="magic-button">
-              <FaMagic /> {loadingImages ? "Fetching..." : "AI Images"}
-            </button>
-          </div>
+<div className="content-buttons" style={{ display: "flex", gap: "12px", justifyContent: "space-between", flexWrap: "wrap" }}>
+  <button
+    onClick={handleAddBlock}
+    style={{ flex: 1, padding: "12px", borderRadius: "8px", backgroundColor: themeColors.buttonPrimary, color: themeColors.buttonText, fontWeight: "bold", cursor: "pointer" }}
+  >
+    + Add Block
+  </button>
+
+  <button
+    onClick={fetchImageSuggestions}
+    disabled={loadingImages}
+    className={`btn-wand ${loadingImages ? "loading" : ""}`}
+  >
+    <FaMagic /> {loadingImages ? "Fetching..." : "AI Images"}
+  </button>
+</div>
 
           {/* Publish */}
           <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
@@ -214,56 +245,76 @@ export default function CreatePost() {
       </footer>
 
       {/* Magic Button Glow */}
-      <style>
-        {`
-          .magic-button {
-            flex: 0 0 140px;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: ${themeColors.buttonPrimary};
-            color: #fff;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: box-shadow 0.3s;
-          }
-          .magic-button:hover {
-            box-shadow: 0 0 12px 4px #a0ff92;
-          }
-          .magic-button:active::after {
-            content: '';
-            position: absolute;
-            width: 120%;
-            height: 120%;
-            top: -10%;
-            left: -10%;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(160,255,146,0) 70%);
-            border-radius: 50%;
-            animation: sparkle 0.5s forwards;
-            pointer-events: none;
-          }
-          @keyframes sparkle {
-            0% { transform: scale(0); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
-          }
+      {/* Magic Button Glow */}
+<style>
+  {`
+    .btn-wand {
+      flex: 0 0 140px;
+      padding: 0.6rem 1.5rem;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #5E936C, #8BC34A);
+      color: #fff;
+      font-weight: bold;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 8px rgba(94, 147, 108, 0.6);
+    }
 
-          @media (max-width: 768px) {
-            .title-row, .content-buttons {
-              flex-direction: column;
-              gap: 8px;
-            }
-            .title-row input, .title-row .magic-button, .content-buttons button {
-              flex: 1 1 100% !important;
-            }
-            h1 { font-size: 1.8rem !important; }
-          }
-        `}
-      </style>
+    .btn-wand::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(45deg);
+      transition: all 0.7s ease;
+      pointer-events: none;
+    }
+
+    .btn-wand:hover::before {
+      top: -20%;
+      left: -20%;
+      transition: all 0.7s ease;
+    }
+
+    .btn-wand:hover {
+      box-shadow: 0 0 15px rgba(139, 195, 74, 0.9), 0 0 30px rgba(94, 147, 108, 0.7);
+    }
+
+    .btn-wand.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 8px rgba(94, 147, 108, 0.6); }
+      50% { box-shadow: 0 0 15px rgba(94, 147, 108, 0.9); }
+      100% { box-shadow: 0 0 8px rgba(94, 147, 108, 0.6); }
+    }
+
+    @media (max-width: 768px) {
+      .title-row, .content-buttons {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .title-row input, .title-row .btn-wand, .content-buttons button {
+        flex: 1 1 100% !important;
+      }
+      h1 { font-size: 1.8rem !important; }
+    }
+  `}
+</style>
+
     </div>
   );
 }
