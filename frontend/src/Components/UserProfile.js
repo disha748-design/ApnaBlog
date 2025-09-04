@@ -78,37 +78,45 @@ export default function UserProfile() {
   const removePreference = (i) => setPreferences(preferences.filter((_, idx) => idx !== i));
 
   // Profile image change
-  const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setPreviewImage(URL.createObjectURL(e.target.files[0]));
-      setProfileImage(e.target.files[0]);
-    }
-  };
+ const handleImageChange = (e) => {
+  if (e.target.files[0]) {
+    setPreviewImage(URL.createObjectURL(e.target.files[0]));
+    setProfileImage(e.target.files[0]); // keep this for upload
+  }
+};
+
 
   // Save profile
-  const handleSave = async () => {
-    try {
-      setLoading(true);
-      const formData = new FormData();
-      formData.append("AboutMe", about);
-      formData.append("Preferences", JSON.stringify(preferences));
-      if (previewImage) formData.append("ProfileImage", profileImage);
+  // no mandatory checks
+const handleSave = async () => {
+  try {
+    setLoading(true);
+    const formData = new FormData();
 
-      await api.put("/UserProfile/me", formData, { headers: { "Content-Type": "multipart/form-data" } });
+    if (about && about.trim() !== "") formData.append("AboutMe", about);
+    if (preferences.length > 0) formData.append("Preferences", JSON.stringify(preferences));
+    if (previewImage && profileImage instanceof File) formData.append("ProfileImage", profileImage);
 
-      setSuccessMsg("✅ Profile updated!");
-      setIsEditing(false);
-      setPreviewImage(null);
+    const res = await api.put("/UserProfile/me", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
-      await fetchProfile();
-      setTimeout(() => setSuccessMsg(""), 3000);
-    } catch (err) {
-      console.error("Save error:", err);
-      alert("Failed to save profile.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setSuccessMsg("✅ Profile updated!");
+    setIsEditing(false);
+    setPreviewImage(null); // clear preview
+
+    // Refetch profile to sync frontend
+    await fetchProfile();
+    setTimeout(() => setSuccessMsg(""), 3000);
+  } catch (err) {
+    console.error("Save error:", err.response?.data || err);
+    alert("Failed to save profile. See console for details.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   // Logout
   const handleLogout = async () => {
@@ -145,18 +153,29 @@ export default function UserProfile() {
         flexDirection: "column",
         gap: "1.5rem"
       }}>
-        <h2 style={{ textAlign: "center", color: "#3E5F44" }}>Welcome back, {displayName} 👋</h2>
+        <h2 style={{ textAlign: "center", color: "#3E5F44" }}>👋 Welcome back, {displayName} </h2>
 
         <div className="profile-grid">
           {/* Avatar */}
           <div className="profile-card center-card">
-            {previewImage ? (
-              <img src={previewImage} alt="Profile Preview" className="profile-preview" />
-            ) : profileImage ? (
-              <img src={profileImage.startsWith("http") ? profileImage : `http://localhost:5096${profileImage}`} alt="Profile" className="profile-preview" />
-            ) : (
-              <FaUserCircle size={120} className="profile-icon" />
-            )}
+         {previewImage ? (
+  <img src={previewImage} alt="Profile Preview" className="profile-preview" />
+) : profileImage ? (
+  typeof profileImage === "string" ? (
+    <img
+      src={profileImage.startsWith("http") ? profileImage : `http://localhost:5096${profileImage}`}
+      alt="Profile"
+      className="profile-preview"
+    />
+  ) : (
+    <FaUserCircle size={120} className="profile-icon" />
+  )
+) : (
+  <FaUserCircle size={120} className="profile-icon" />
+)}
+
+
+
             <h3 className="profile-username">{displayName}</h3>
             <p className="profile-email">{email}</p>
           </div>
@@ -216,7 +235,7 @@ export default function UserProfile() {
 
           {/* Tips */}
           <div className="profile-card insights-card">
-            <h3 className="section-title">💡 Blog Growth Tips</h3>
+            <h3 className="section-title">💡 Blog Tips</h3>
             {loadingTips ? (
               <p>Loading tips...</p>
             ) : (
