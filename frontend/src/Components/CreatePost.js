@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { FaHome, FaUser, FaMagic } from "react-icons/fa";
 import api from "../api";
 import ErrorBoundary from "../Components/ErrorBoundary";
-import { FaBars, FaTimes, FaHome, FaUser } from "react-icons/fa";
 
 export default function CreatePost() {
   const navigate = useNavigate();
@@ -12,20 +12,18 @@ export default function CreatePost() {
   const loggedInUser = user?.username || "Anonymous";
 
   const [title, setTitle] = useState("");
-  const [blocks, setBlocks] = useState([
-    { blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: 0 },
-  ]);
+  const [blocks, setBlocks] = useState([{ blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: 0 }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [imageSuggestions, setImageSuggestions] = useState([]);
   const [loadingImages, setLoadingImages] = useState(false);
 
   const themeColors = {
-    headerFooterBg: "#3E5F44",
+    headerFooterBg: "#043d1eff",
     mainBg: "linear-gradient(135deg, #F4F4F9, #E8FFD7)",
-    cardBg: "rgba(255,255,255,0.9)",
-    text: "#2E2E2E",
-    buttonPrimary: "#3E5F44",
+    cardBg: "#FFFFFF",
+    text: "#1C1C1C",
+    buttonPrimary: "#1d7c05ff",
     buttonText: "#fff",
   };
 
@@ -33,7 +31,7 @@ export default function CreatePost() {
     background: "transparent",
     border: "none",
     cursor: "pointer",
-    fontSize: "0.9rem",
+    fontSize: "0.95rem",
     color: "#fff",
     padding: 0,
     textDecoration: "none",
@@ -51,10 +49,7 @@ export default function CreatePost() {
   };
 
   const handleAddBlock = () => {
-    setBlocks([
-      ...blocks,
-      { blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: blocks.length },
-    ]);
+    setBlocks([...blocks, { blockType: "text", textContent: "", imageUrlOrBase64: "", displayOrder: blocks.length }]);
   };
 
   const handleAddImage = (e, index) => {
@@ -72,17 +67,11 @@ export default function CreatePost() {
   };
 
   const handleAddSuggestedImage = (url) => {
-    setBlocks([
-      ...blocks,
-      { blockType: "image", imageUrlOrBase64: url, isUnsplash: true, textContent: "", displayOrder: blocks.length },
-    ]);
+    setBlocks([...blocks, { blockType: "image", imageUrlOrBase64: url, isUnsplash: true, textContent: "", displayOrder: blocks.length }]);
   };
 
   const handleSubmit = async () => {
-    if (!title.trim()) {
-      alert("Title cannot be empty!");
-      return;
-    }
+    if (!title.trim()) return alert("Title cannot be empty!");
     setIsSubmitting(true);
 
     try {
@@ -162,22 +151,13 @@ export default function CreatePost() {
 
   return (
     <div style={{ fontFamily: "'Georgia', serif", minHeight: "100vh", display: "flex", flexDirection: "column", background: themeColors.mainBg }}>
+      
       {/* Header */}
-      <header style={{ padding: "1rem 2rem", display: "flex", justifyContent: "space-between", alignItems: "center", backgroundColor: themeColors.headerFooterBg, color: "#fff", position: "relative" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.5rem 2rem", backgroundColor: themeColors.headerFooterBg, color: "#fff" }}>
         <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }} onClick={() => navigate("/home")}>ApnaBlog</div>
-        <div className="desktop-nav" style={{ display: "flex", gap: "1.8rem", fontSize: "0.9rem" }}>
-          <button style={navBtnStyle} onClick={() => navigate("/home")}><FaHome style={{ marginRight: "6px" }} /> Home</button>
-          <button style={navBtnStyle} onClick={() => navigate("/profile")}><FaUser style={{ marginRight: "6px" }} /> Profile</button>
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          <button style={navBtnStyle} onClick={() => navigate("/profile")}><FaUser /> Profile</button>
         </div>
-        <div className="hamburger" style={{ fontSize: "1.5rem", cursor: "pointer", display: "none", color: "#fff" }} onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </div>
-        {menuOpen && (
-          <div style={{ position: "absolute", top: "100%", right: 0, left: 0, backgroundColor: themeColors.headerFooterBg, display: "flex", flexDirection: "column", gap: "1rem", padding: "1rem 2rem", zIndex: 1000 }}>
-            <button style={{ ...navBtnStyle, color: "#fff" }} onClick={() => navigate("/home")}><FaHome style={{ marginRight: "6px" }} /> Home</button>
-            <button style={{ ...navBtnStyle, color: "#fff" }} onClick={() => navigate("/profile")}><FaUser style={{ marginRight: "6px" }} /> Profile</button>
-          </div>
-        )}
       </header>
 
       {/* Main Content */}
@@ -185,10 +165,10 @@ export default function CreatePost() {
         <div style={{ backgroundColor: themeColors.cardBg, borderRadius: "12px", padding: "2rem", maxWidth: "900px", width: "100%", boxShadow: "0 4px 15px rgba(0,0,0,0.1)", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           <h1 style={{ fontSize: "2rem", textAlign: "center", color: themeColors.text }}>Create a New Post</h1>
 
-          {/* Title Input */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "1rem" }}>
-            <input type="text" placeholder="Post Title" value={title} onChange={(e) => setTitle(e.target.value)} style={{ flex: 1, padding: "10px", borderRadius: "8px", border: `1px solid ${themeColors.buttonPrimary}`, backgroundColor: "#fff", color: themeColors.text }} />
-            <button onClick={generateTitle} style={{ backgroundColor: themeColors.buttonPrimary, color: themeColors.buttonText, padding: "10px", borderRadius: "8px", cursor: "pointer" }}>Generate AI Title</button>
+          {/* Title Input + AI Title */}
+          <div className="title-row" style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+            <input type="text" placeholder="Post Title" value={title} onChange={(e) => setTitle(e.target.value)} style={{ flex: 1, padding: "10px", borderRadius: "8px", border: `1px solid ${themeColors.buttonPrimary}` }} />
+            <button onClick={generateTitle} className="magic-button"><FaMagic /> AI Title</button>
           </div>
 
           {/* Content Blocks */}
@@ -203,32 +183,25 @@ export default function CreatePost() {
           ))}
 
           {/* Buttons Row */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", justifyContent: "space-between" }}>
+          <div className="content-buttons" style={{ display: "flex", gap: "12px", justifyContent: "space-between", flexWrap: "wrap" }}>
             <button onClick={handleAddBlock} style={{ flex: 1, padding: "12px", borderRadius: "8px", backgroundColor: themeColors.buttonPrimary, color: themeColors.buttonText, fontWeight: "bold", cursor: "pointer" }}>+ Add Block</button>
-            <button onClick={fetchImageSuggestions} disabled={loadingImages} style={{ flex: 1, padding: "12px", borderRadius: "8px", backgroundColor: "#3E5F44", color: "#fff", fontWeight: "bold", cursor: "pointer" }}>
-              {loadingImages ? "Fetching Images..." : "AI Image Suggestions"}
+            <button onClick={fetchImageSuggestions} disabled={loadingImages} className="magic-button">
+              <FaMagic /> {loadingImages ? "Fetching..." : "AI Images"}
             </button>
           </div>
 
-          {/* Publish Button Centered */}
+          {/* Publish */}
           <div style={{ display: "flex", justifyContent: "center", marginTop: "1rem" }}>
             <button onClick={handleSubmit} disabled={isSubmitting} style={{ padding: "12px 24px", borderRadius: "8px", backgroundColor: themeColors.buttonPrimary, color: themeColors.buttonText, fontWeight: "bold", cursor: "pointer", minWidth: "200px" }}>
               {isSubmitting ? "Publishing..." : "Publish Post"}
             </button>
           </div>
 
-          {/* AI Image Suggestions Display */}
+          {/* AI Image Suggestions */}
           <div style={{ marginTop: "1rem" }}>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "1rem", justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center" }}>
               {imageSuggestions.map((img) => (
-                <img
-                  key={img.id}
-                  src={img.urls.small}
-                  alt={img.alt_description || "AI suggestion"}
-                  style={{ width: "120px", height: "80px", objectFit: "cover", borderRadius: "8px", cursor: "pointer", border: "2px solid transparent" }}
-                  onClick={() => handleAddSuggestedImage(img.urls.full)}
-                  title="Click to add to post"
-                />
+                <img key={img.id} src={img.urls.small} alt={img.alt_description || "AI suggestion"} style={{ width: "120px", height: "80px", objectFit: "cover", borderRadius: "8px", cursor: "pointer", border: "2px solid transparent" }} onClick={() => handleAddSuggestedImage(img.urls.full)} title="Click to add to post" />
               ))}
             </div>
           </div>
@@ -236,18 +209,57 @@ export default function CreatePost() {
       </main>
 
       {/* Footer */}
-      <footer style={{ padding: "1rem 2rem", fontSize: "0.85rem", color: "#fff", backgroundColor: themeColors.headerFooterBg, display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
-        <span>@2025 ApnaBlog</span>
+      <footer style={{ padding: "1rem 2rem", backgroundColor: themeColors.headerFooterBg, color: "#fff", textAlign: "center" }}>
+        © 2025 ApnaBlog
       </footer>
 
-      {/* Responsive */}
+      {/* Magic Button Glow */}
       <style>
         {`
+          .magic-button {
+            flex: 0 0 140px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: ${themeColors.buttonPrimary};
+            color: #fff;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.3s;
+          }
+          .magic-button:hover {
+            box-shadow: 0 0 12px 4px #a0ff92;
+          }
+          .magic-button:active::after {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(160,255,146,0) 70%);
+            border-radius: 50%;
+            animation: sparkle 0.5s forwards;
+            pointer-events: none;
+          }
+          @keyframes sparkle {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+          }
+
           @media (max-width: 768px) {
-            .desktop-nav { display: none !important; }
-            .hamburger { display: block !important; }
-            main div { padding: 1rem !important; }
-            input, button { flex: 1 1 100% !important; }
+            .title-row, .content-buttons {
+              flex-direction: column;
+              gap: 8px;
+            }
+            .title-row input, .title-row .magic-button, .content-buttons button {
+              flex: 1 1 100% !important;
+            }
             h1 { font-size: 1.8rem !important; }
           }
         `}
