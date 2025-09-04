@@ -2,14 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import api from "../api";
 import { AuthContext } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
-import {
-  FaCheck,
-  FaTimes,
-  FaPen,
-  FaBars,
-  FaTimes as FaTimesIcon,
-  FaTrash,
-} from "react-icons/fa";
+import { FaCheck, FaTimes, FaPen, FaBars, FaTimes as FaTimesIcon } from "react-icons/fa";
 
 const EditorDashboard = () => {
   const navigate = useNavigate();
@@ -50,21 +43,6 @@ const EditorDashboard = () => {
       setPendingPosts((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
       alert("Error rejecting post");
-    }
-  };
-
-  const deletePost = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this post?")) return;
-    try {
-      setActionLoading(true);
-      await api.delete(`/Posts/${id}`);
-      setPendingPosts((prev) => prev.filter((p) => p.id !== id));
-      alert("Post deleted successfully.");
-    } catch (err) {
-      console.error("Error deleting post:", err);
-      alert("Failed to delete post.");
-    } finally {
-      setActionLoading(false);
     }
   };
 
@@ -279,23 +257,6 @@ const EditorDashboard = () => {
                   }}
                 >
                   <FaPen /> Edit
-                </button>
-                <button
-                  onClick={() => deletePost(post.id)}
-                  disabled={actionLoading}
-                  style={{
-                    background: "#E63946",
-                    color: "#fff",
-                    border: "none",
-                    padding: "0.5rem 1rem",
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.3rem",
-                  }}
-                >
-                  <FaTrash /> Delete
                 </button>
               </div>
             </div>
