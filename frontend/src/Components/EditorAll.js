@@ -86,7 +86,6 @@ export default function EditorAll() {
       >
         <div
           style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }}
-          onClick={() => navigate("/")}
         >
           ApnaBlog Editor
         </div>
@@ -165,12 +164,13 @@ export default function EditorAll() {
             >
               <h3>{post.title}</h3>
               <p>
-                By <strong>{post.authorUsername}</strong> • {new Date(post.createdAt).toLocaleDateString()}
+            By{" "}
+              {post.authorUsername || post.author?.userName || post.user?.username || "Anonymous"}
+            {" "}
+          </p>
+           <p>
+              <strong>{post.authorUsername}</strong>  {new Date(post.createdAt).toLocaleDateString()}
               </p>
-              <p>
-                {post.viewsCount || 0} views • {post.likesCount || 0} likes
-              </p>
-
               {post.images?.[0] && (
                 <img
                   src={post.images[0].url.startsWith("http") ? post.images[0].url : `${backendBaseUrl}/${post.images[0].url}`}
@@ -184,7 +184,7 @@ export default function EditorAll() {
                   onClick={() => handleEdit(post.id)}
                   disabled={actionLoading}
                   style={{
-                    backgroundColor: "#F4A261",
+                    backgroundColor: "#5E936C",
                     color: "#fff",
                     border: "none",
                     padding: "0.5rem 1rem",
@@ -192,7 +192,7 @@ export default function EditorAll() {
                     cursor: "pointer",
                   }}
                 >
-                  Edit <FaEdit />
+                <FaEdit />
                 </button>
                 <button
                   onClick={() => handleDelete(post.id)}
@@ -206,7 +206,7 @@ export default function EditorAll() {
                     cursor: "pointer",
                   }}
                 >
-                  Delete <FaTrash />
+                <FaTrash />
                 </button>
               </div>
             </div>
