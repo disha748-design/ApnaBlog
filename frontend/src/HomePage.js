@@ -214,7 +214,7 @@ export default function HomePage() {
     }}
   >
    <FaRegEdit /> 
- Drafts
+  My Posts
   </div>
 )}
 

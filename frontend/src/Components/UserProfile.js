@@ -235,7 +235,7 @@ const handleSave = async () => {
 
           {/* Tips */}
           <div className="profile-card insights-card">
-            <h3 className="section-title">💡 Blog Tips</h3>
+            <h3 className="section-title">💡 Blog Growth Tips</h3>
             {loadingTips ? (
               <p>Loading tips...</p>
             ) : (

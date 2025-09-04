@@ -1,75 +1,21 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
-import { FaSun, FaMoon, FaUser, FaBars, FaTimes, FaSearch, FaRegEdit } from "react-icons/fa";
+import { FaSearch, FaBars, FaTimes } from "react-icons/fa";
 
-import { AuthContext } from "../AuthContext";
-
-function SearchBar({ onSearch, isMobile, toggleMobileSearch }) {
-  const [query, setQuery] = useState("");
-  const handleChange = (e) => {
-    setQuery(e.target.value);
-    onSearch(e.target.value);
-  };
-  if (isMobile) {
-    return (
-      <div style={{ position: "relative" }}>
-        <button
-          onClick={toggleMobileSearch}
-          style={{ background: "none", border: "none", color: "#fff", fontSize: "1.3rem" }}
-        >
-          <FaSearch />
-        </button>
-      </div>
-    );
-  }
-  return (
-    <input
-      type="text"
-      value={query}
-      onChange={handleChange}
-      placeholder="Search posts..."
-      style={{
-        width: "250px",
-        padding: "0.4rem 0.8rem",
-        borderRadius: "20px",
-        border: "1px solid #ccc",
-        fontSize: "0.95rem",
-        transition: "width 0.3s",
-      }}
-    />
-  );
-}
-
-export default function MyPosts() {
+export default function PostsOverview() {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(AuthContext);
-
   const [posts, setPosts] = useState([]);
-  const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mode, setMode] = useState("light");
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  useEffect(() => {
-    document.body.style.backgroundColor = mode === "light" ? "#F4F4F9" : "#1C1C1C";
-  }, [mode]);
-
-  // Fetch user's posts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const res = await api.get("/Posts/my-posts");
         setPosts(res.data);
-        setFilteredPosts(res.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -79,154 +25,111 @@ export default function MyPosts() {
     fetchPosts();
   }, []);
 
-  const themeColors = {
-    headerFooterBg: mode === "light" ? "#043d1eff" : "#1a1a1a",
-    mainBg: mode === "light" ? "linear-gradient(135deg, #F4F4F9, #E8FFD7)" : "#121212",
-    cardBg: mode === "light" ? "#FFFFFF" : "#1E1E1E",
-    buttonBg: "#1d7c05ff",
-    buttonText: "#fff",
-    text: mode === "light" ? "#1C1C1C" : "#EEE",
-  };
-
-  const handleSearch = (query) => {
-    if (!query) setFilteredPosts(posts);
-    else setFilteredPosts(posts.filter((p) => p.title.toLowerCase().includes(query.toLowerCase())));
-  };
-
-  const handlePostClick = (id) => navigate(`/post/${id}`);
-
-  // Split posts by status
-  const drafts = filteredPosts.filter(p => p.status === 0);
-  const pending = filteredPosts.filter(p => p.status === 1);
-  const published = filteredPosts.filter(p => p.status === 2);
-  const rejected = filteredPosts.filter(p => p.status === 3);
-
-  const renderPost = (post) => (
-    <div key={post.id} style={{
-      backgroundColor: themeColors.cardBg,
-      padding: "1rem",
-      marginBottom: "1rem",
-      borderRadius: "15px",
-      boxShadow: "0 6px 16px rgba(0,0,0,0.1)",
-      cursor: "pointer",
-      transition: "transform 0.2s",
-    }} onClick={() => handlePostClick(post.id)}
-      onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-5px)"}
-      onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
-    >
-      <h3 style={{ marginBottom: "0.25rem", color: themeColors.text }}>{post.title}</h3>
-      <div
-  style={{ color: "#555", whiteSpace: "pre-line" }}
-  dangerouslySetInnerHTML={{ __html: post.content }}
-></div>
-
-      {post.images && post.images.length > 0 && (
-        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-          {post.images.map(img => (
-            <img key={img.url} src={img.url} alt={img.fileName} style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px" }} />
-          ))}
-        </div>
-      )}
-      <small style={{ color: "#777" }}>Created: {new Date(post.createdAt).toLocaleString()}</small>
-    </div>
+  const filteredPosts = posts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 0: return "Draft";
+      case 1: return "Pending";
+      case 2: return "Published";
+      case 3: return "Rejected";
+      default: return "Unknown";
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0: return "#ccc";
+      case 1: return "#f0ad4e";
+      case 2: return "#5cb85c";
+      case 3: return "#d9534f";
+      default: return "#777";
+    }
+  };
+
+  if (loading) return <div style={{ padding: "2rem" }}>Loading posts...</div>;
+
   return (
-    <div style={{ fontFamily: "Georgia, serif", minHeight: "100vh", display: "flex", flexDirection: "column", background: themeColors.mainBg }}>
-      {/* Header */}
+    <div style={{ fontFamily: "Georgia, serif", background: "linear-gradient(135deg, #F4F4F9, #E8FFD7)", minHeight: "100vh" }}>
+      {/* Navbar */}
       <header style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         padding: "0.5rem 1rem",
-        backgroundColor: themeColors.headerFooterBg,
+        backgroundColor: "#043d1eff",
         color: "#fff",
         position: "relative",
-        flexWrap: "wrap",
-        zIndex: 10
+        height: "60px",
       }}>
         <div style={{ fontWeight: "bold", fontSize: "1.5rem", cursor: "pointer" }} onClick={() => navigate("/home")}>
           ApnaBlog
         </div>
 
-        <div style={{ flex: 1, display: "flex", justifyContent: "center", margin: "0.5rem 0" }}>
-          {!isMobile && <SearchBar onSearch={handleSearch} />}
-          {isMobile && mobileSearchOpen && <SearchBar onSearch={handleSearch} />}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div onClick={() => setSearchOpen(!searchOpen)} style={{ cursor: "pointer" }}>
+            <FaSearch />
+          </div>
+          <button onClick={() => navigate("/create-post")} style={{ background: "#1d7c05ff", color: "#fff", border: "none", padding: "0.5rem 1rem", borderRadius: "20px", cursor: "pointer" }}>
+            Write
+          </button>
+          <div style={{ fontSize: "1.5rem", cursor: "pointer" }} onClick={() => navigate("/profile")}>
+            👤
+          </div>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", position: "relative" }}>
-          {!isMobile && user && (
-            <button onClick={() => navigate("/create-post")} style={{ backgroundColor: themeColors.buttonBg, color: themeColors.buttonText, padding: "0.5rem 1rem", borderRadius: "15px", border: "none", cursor: "pointer" }}>
-              Write
-            </button>
-          )}
-          {isMobile && (
-            <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", color: "#fff", fontSize: "1.5rem" }}>
-              {menuOpen ? <FaTimes /> : <FaBars />}
-            </button>
-          )}
-
-          {menuOpen && (
-            <div style={{ position: "absolute", top: "50px", right: 0, backgroundColor: mode === "light" ? "#fff" : "#2b2b2b", color: mode === "light" ? "#1C1C1C" : "#eee", borderRadius: "12px", boxShadow: "0 8px 16px rgba(0,0,0,0.2)", overflow: "hidden", zIndex: 1000, minWidth: "180px", fontSize: "0.95rem" }}>
-              <div style={{ padding: "0.7rem 1rem", cursor: "pointer", borderBottom: "1px solid #ccc" }} onClick={() => { navigate("/profile"); setMenuOpen(false); }}><FaUser /> Profile</div>
-              <div style={{ padding: "0.7rem 1rem", cursor: "pointer", borderBottom: "1px solid #ccc" }} onClick={() => { navigate("/my-posts"); setMenuOpen(false); }}><FaRegEdit /> Drafts</div>
-              <div style={{ padding: "0.7rem 1rem", cursor: "pointer", borderBottom: "1px solid #ccc", display: "flex", alignItems: "center", gap: "0.5rem" }} onClick={() => { setMode(mode === "light" ? "dark" : "light"); setMenuOpen(false); }}>
-                {mode === "light" ? <FaSun /> : <FaMoon />} {mode === "light" ? "Light Mode" : "Dark Mode"}
-              </div>
-              {user && (
-                <div style={{ padding: "0.7rem 1rem", cursor: "pointer" }} onClick={() => { setUser(null); navigate("/login"); setMenuOpen(false); }}>
-                  Logout
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {searchOpen && (
+          <input
+            type="text"
+            placeholder="Search posts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              position: "absolute",
+              top: "60px",
+              right: "1rem",
+              padding: "0.3rem 0.6rem",
+              borderRadius: "20px",
+              border: "1px solid #ccc",
+              outline: "none",
+            }}
+          />
+        )}
       </header>
 
-      {/* Main Content */}
-      <main style={{ flex: 1, padding: "2rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "bold", color: themeColors.text }}>My Posts</h1>
-
-        {loading && <p style={{ textAlign: "center", marginTop: "2rem", fontStyle: "italic" }}>Loading posts...</p>}
-
-        {!loading && posts.length === 0 && <p style={{ textAlign: "center", marginTop: "2rem", fontStyle: "italic" }}>You have no posts yet.</p>}
-
-        {!loading && posts.length > 0 && (
-          <>
-            {drafts.length > 0 && (
-              <section>
-                <h2 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem" }}>Drafts</h2>
-                {drafts.map(renderPost)}
-              </section>
-            )}
-            {pending.length > 0 && (
-              <section>
-                <h2 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem" }}>Pending Approval</h2>
-                {pending.map(renderPost)}
-              </section>
-            )}
-            {published.length > 0 && (
-              <section>
-                <h2 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem" }}>Published</h2>
-                {published.map(renderPost)}
-              </section>
-            )}
-            {rejected.length > 0 && (
-              <section>
-                <h2 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem", color: "red" }}>Rejected</h2>
-                {rejected.map(renderPost)}
-              </section>
-            )}
-          </>
+      {/* Main */}
+      <main style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto" }}>
+        <h2 style={{ marginBottom: "1rem", color: "#2E2E2E" }}>Posts Overview</h2>
+        {filteredPosts.length === 0 ? (
+          <p>No posts found.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {filteredPosts.map((post) => (
+              <div key={post.id} style={{
+                padding: "1rem",
+                borderRadius: "10px",
+                backgroundColor: "#fff",
+                cursor: "pointer",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                transition: "transform 0.2s",
+              }} onClick={() => navigate(`/post/${post.id}`)}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              >
+                <h3 style={{ margin: 0 }}>{post.title}</h3>
+                <p style={{ fontSize: "0.85rem", color: "#777", margin: "0.3rem 0" }}>Status: <span style={{ color: getStatusColor(post.status), fontWeight: "bold" }}>{getStatusLabel(post.status)}</span></p>
+                <p style={{ color: "#555", fontSize: "0.9rem" }}>{post.content.replace(/<[^>]+>/g, "").substring(0, 120)}...</p>
+              </div>
+            ))}
+          </div>
         )}
       </main>
 
-      {/* Footer */}
-      <footer style={{ padding: "1rem 2rem", backgroundColor: themeColors.headerFooterBg, color: "#fff", textAlign: "center" }}>
+      <footer style={{ padding: "1rem 2rem", fontSize: "0.85rem", color: "#fff", backgroundColor: "#043d1eff", textAlign: "center" }}>
         © 2025 ApnaBlog
       </footer>
-
-      
     </div>
   );
 }
